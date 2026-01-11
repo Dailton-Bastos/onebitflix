@@ -4,6 +4,7 @@
 /build
 /pgdata
 /pgadmin
+/.adminjs
 
 # Logs
 logs

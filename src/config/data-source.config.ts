@@ -1,13 +1,6 @@
-import { ConfigService } from '@nestjs/config'
-import { config } from 'dotenv'
 import { DataSource } from 'typeorm'
 import type { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions.js'
-
-const ENV = process.env.NODE_ENV ?? 'development'
-
-config({ path: `.env.${ENV}.local` })
-
-const configService = new ConfigService()
+import { configService } from './doenv.config'
 
 export const dataSourceOptions: PostgresConnectionOptions = {
 	type: 'postgres',

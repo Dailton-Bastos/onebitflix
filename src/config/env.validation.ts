@@ -1,5 +1,6 @@
 import { plainToInstance } from 'class-transformer'
 import {
+	IsEmail,
 	IsEnum,
 	IsNotEmpty,
 	IsNumber,
@@ -58,6 +59,26 @@ class EnvironmentVariables {
 	@Max(1)
 	@IsNotEmpty()
 	DATABASE_DROP_SCHEMA: number
+
+	@IsEmail()
+	@IsNotEmpty()
+	ADMINJS_DEFAULT_EMAIL: string
+
+	@IsString()
+	@IsNotEmpty()
+	ADMINJS_DEFAULT_PASSWORD: string
+
+	@IsString()
+	@IsNotEmpty()
+	ADMINJS_COOKIE_NAME: string
+
+	@IsString()
+	@IsNotEmpty()
+	ADMINJS_COOKIE_PASSWORD: string
+
+	@IsString()
+	@IsNotEmpty()
+	ADMINJS_SESSION_SECRET: string
 }
 
 export const validate = (config: Record<string, unknown>) => {
