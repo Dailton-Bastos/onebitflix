@@ -1,0 +1,122 @@
+services:
+  db:
+    image: postgres
+    container_name: nestjs-starter-postgres
+    restart: always
+    shm_size: 128mb
+    ports:
+      - '${DATABASE_PORT}:5432'
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - ./pgdata:/var/lib/postgresql
+    networks:
+      - nestjs-starter-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prerelease
+    image: nestjs-starter-app-dev:latest
+    container_name: nestjs-starter-app-dev
+    ports:
+      - '${PORT}:3000'
+    env_file:
+      - .env.development.local
+    profiles:
+      - development
+    volumes:
+      - .:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    networks:
+      - nestjs-starter-network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:${PORT}/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: nestjs-starter-app-prod:latest
+    container_name: nestjs-starter-app-prod
+    ports:
+      - '${PORT}:3001'
+    env_file:
+      - .env.production.local
+    profiles:
+      - production
+    networks:
+      - nestjs-starter-network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:${PORT}/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: nestjs-starter-pgadmin
+    restart: always
+    ports:
+      - '5050:80'
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - db
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
+    networks:
+      - nestjs-starter-network
+
+  # ========================================
+  # Test Service
+  # ========================================
+
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    image: nestjs-starter-app-test:latest
+    container_name: nestjs-starter-app-test
+    env_file:
+      - .env.test.local
+    volumes:
+     - ./.env.test.local:/usr/src/app/.env.test.local
+    profiles:
+      - test
+    networks:
+      - nestjs-starter-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  nestjs-starter-network:
+    driver: bridge
+    name: nestjs-starter-network
+
+volumes:
+  node_modules:

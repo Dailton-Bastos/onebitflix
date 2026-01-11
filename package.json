@@ -1,0 +1,100 @@
+{
+	"name": "nestjs-starter",
+	"version": "0.0.1",
+	"description": "",
+	"author": "",
+	"private": true,
+	"license": "UNLICENSED",
+	"scripts": {
+		"build": "nest build",
+		"format": "biome format --write ./src",
+		"start": "env-cmd -f .env.development.local -- nest start",
+		"start:dev": "env-cmd -f .env.development.local -- nest start --watch",
+		"start:debug": "env-cmd -f .env.development.local nest start --debug --watch",
+		"start:prod": "env-cmd -f .env.production.local -- node dist/main",
+		"lint": "biome lint ./src",
+		"check": "biome check --write ./src",
+		"test": "jest",
+		"test:watch": "jest --watchAll --maxWorkers=1",
+		"test:cov": "jest --coverage",
+		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+		"test:e2e": "env-cmd -f .env.test.local -- jest --config ./test/jest-e2e.json --maxWorkers=1",
+		"docker:up": "docker compose --env-file .env.development.local --profile development up -d",
+		"docker:down": "docker compose --env-file .env.development.local --profile development down -v",
+		"docker:exec": "docker compose --env-file .env.development.local exec app-dev /bin/zsh",
+		"docker:logs": "docker compose --env-file .env.development.local --profile development logs -f",
+		"docker:build": "docker compose --env-file .env.development.local --profile development build",
+		"prepare": "husky || true",
+		"commit": "cz"
+	},
+	"lint-staged": {
+		"**.{js,ts,mjs,json,jsonc,spec.ts}": [
+			"biome lint --write --no-errors-on-unmatched",
+			"biome format --write --no-errors-on-unmatched",
+			"biome check --write --no-errors-on-unmatched"
+		],
+		"!(test/**)/**/*.spec.ts": [
+			"yarn run test"
+		]
+	},
+	"dependencies": {
+		"@nestjs/common": "^11.1.11",
+		"@nestjs/config": "^4.0.2",
+		"@nestjs/core": "^11.1.11",
+		"@nestjs/platform-express": "^11.1.11",
+		"class-transformer": "^0.5.1",
+		"class-validator": "^0.14.3",
+		"env-cmd": "^11.0.0",
+		"reflect-metadata": "^0.2.2",
+		"rxjs": "^7.8.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.11",
+		"@commitlint/cli": "^20.3.1",
+		"@commitlint/config-conventional": "^20.3.1",
+		"@nestjs/cli": "^11.0.14",
+		"@nestjs/schematics": "^11.0.9",
+		"@nestjs/testing": "^11.1.11",
+		"@types/express": "^5.0.6",
+		"@types/jest": "^30.0.0",
+		"@types/node": "^25.0.3",
+		"@types/supertest": "^6.0.3",
+		"cz-conventional-changelog": "^3.3.0",
+		"globals": "^17.0.0",
+		"husky": "^9.1.7",
+		"jest": "^30.2.0",
+		"lint-staged": "^16.2.7",
+		"source-map-support": "^0.5.21",
+		"supertest": "^7.2.2",
+		"ts-jest": "^29.4.6",
+		"ts-loader": "^9.5.4",
+		"ts-node": "^10.9.2",
+		"tsconfig-paths": "^4.2.0",
+		"typescript": "^5.9.3"
+	},
+	"jest": {
+		"moduleFileExtensions": [
+			"js",
+			"json",
+			"ts"
+		],
+		"rootDir": "src",
+		"testRegex": ".*\\.spec\\.ts$",
+		"transform": {
+			"^.+\\.(t|j)s$": "ts-jest"
+		},
+		"collectCoverageFrom": [
+			"**/*.(t|j)s"
+		],
+		"coverageDirectory": "../coverage",
+		"testEnvironment": "node",
+		"moduleNameMapper": {
+			"^src/(.*)$": "<rootDir>/$1"
+		}
+	},
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		}
+	}
+}
