@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres
-    container_name: nestjs-starter-postgres
+    container_name: onebitflix-postgres
     restart: always
     shm_size: 128mb
     ports:
@@ -13,7 +13,7 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql
     networks:
-      - nestjs-starter-network
+      - onebitflix-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
       interval: 10s
@@ -26,8 +26,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: prerelease
-    image: nestjs-starter-app-dev:latest
-    container_name: nestjs-starter-app-dev
+    image: onebitflix-app-dev:latest
+    container_name: onebitflix-app-dev
     ports:
       - '${PORT}:3000'
     env_file:
@@ -38,7 +38,7 @@ services:
       - .:/usr/src/app
       - node_modules:/usr/src/app/node_modules
     networks:
-      - nestjs-starter-network
+      - onebitflix-network
     depends_on:
       db:
         condition: service_healthy
@@ -54,8 +54,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: nestjs-starter-app-prod:latest
-    container_name: nestjs-starter-app-prod
+    image: onebitflix-app-prod:latest
+    container_name: onebitflix-app-prod
     ports:
       - '${PORT}:3001'
     env_file:
@@ -63,7 +63,7 @@ services:
     profiles:
       - production
     networks:
-      - nestjs-starter-network
+      - onebitflix-network
     depends_on:
       db:
         condition: service_healthy
@@ -76,7 +76,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: nestjs-starter-pgadmin
+    container_name: onebitflix-pgadmin
     restart: always
     ports:
       - '5050:80'
@@ -88,7 +88,7 @@ services:
     volumes:
       - ./pgadmin:/var/lib/pgadmin
     networks:
-      - nestjs-starter-network
+      - onebitflix-network
 
   # ========================================
   # Test Service
@@ -99,8 +99,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: test
-    image: nestjs-starter-app-test:latest
-    container_name: nestjs-starter-app-test
+    image: onebitflix-app-test:latest
+    container_name: onebitflix-app-test
     env_file:
       - .env.test.local
     volumes:
@@ -108,15 +108,15 @@ services:
     profiles:
       - test
     networks:
-      - nestjs-starter-network
+      - onebitflix-network
     depends_on:
       db:
         condition: service_healthy
 
 networks:
-  nestjs-starter-network:
+  onebitflix-network:
     driver: bridge
-    name: nestjs-starter-network
+    name: onebitflix-network
 
 volumes:
   node_modules:
