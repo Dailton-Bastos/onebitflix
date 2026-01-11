@@ -17,9 +17,18 @@ import { HealthModule } from './health/health.module'
 		}),
 		ServeStaticModule.forRoot(serveStaticConfig()),
 		TypeOrmModule.forRootAsync(typeOrmConfig.asProvider()),
-		import('@adminjs/nestjs').then(({ AdminModule }) => {
-			return AdminModule.createAdminAsync(adminjsConfig.asProvider())
-		}),
+		// AdminJS version 7 is ESM-only. In order to import it, you have to use dynamic imports.
+		Promise.all([
+			import('@adminjs/nestjs'),
+			import('@adminjs/typeorm'),
+			import('adminjs')
+		]).then(
+			([{ AdminModule }, { Database, Resource }, { default: AdminJS }]) => {
+				AdminJS.registerAdapter({ Database, Resource })
+
+				return AdminModule.createAdminAsync(adminjsConfig.asProvider())
+			}
+		),
 		HealthModule
 	]
 })
