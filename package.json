@@ -25,7 +25,12 @@
 		"docker:logs": "docker compose --env-file .env.development.local --profile development logs -f",
 		"docker:build": "docker compose --env-file .env.development.local --profile development build",
 		"prepare": "husky || true",
-		"commit": "cz"
+		"commit": "cz",
+		"typeorm": "yarn run build && ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli -d src/config/data-source.config.ts",
+		"migration:create": "typeorm migration:create ./src/migrations/${MIGRATION_NAME}",
+		"migration:run": "yarn run typeorm migration:run",
+		"migration:revert": "yarn run typeorm migration:revert",
+		"migration:show": "yarn run typeorm migration:show"
 	},
 	"lint-staged": {
 		"**.{js,ts,mjs,json,jsonc,spec.ts}": [
@@ -42,11 +47,15 @@
 		"@nestjs/config": "^4.0.2",
 		"@nestjs/core": "^11.1.11",
 		"@nestjs/platform-express": "^11.1.11",
+		"@nestjs/typeorm": "^11.0.0",
 		"class-transformer": "^0.5.1",
 		"class-validator": "^0.14.3",
+		"dotenv": "^17.2.3",
 		"env-cmd": "^11.0.0",
+		"pg": "^8.16.3",
 		"reflect-metadata": "^0.2.2",
-		"rxjs": "^7.8.2"
+		"rxjs": "^7.8.2",
+		"typeorm": "^0.3.28"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.11",

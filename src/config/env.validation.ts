@@ -42,6 +42,22 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	DATABASE_NAME: string
+
+	@IsString()
+	@IsNotEmpty()
+	DATABASE_HOST: string
+
+	@IsNumber()
+	@Min(0)
+	@Max(1)
+	@IsNotEmpty()
+	DATABASE_SYNCHRONIZE: number
+
+	@IsNumber()
+	@Min(0)
+	@Max(1)
+	@IsNotEmpty()
+	DATABASE_DROP_SCHEMA: number
 }
 
 export const validate = (config: Record<string, unknown>) => {
