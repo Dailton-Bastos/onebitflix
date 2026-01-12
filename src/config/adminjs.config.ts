@@ -1,5 +1,6 @@
 import { AdminModuleOptions } from '@adminjs/nestjs'
 import { registerAs } from '@nestjs/config'
+import { resources } from 'src/common/adminjs/resources'
 import { configService } from './doenv.config'
 
 const DEFAULT_ADMIN = {
@@ -13,7 +14,7 @@ export const adminjsConfig = registerAs(
 		({
 			adminJsOptions: {
 				rootPath: '/admin',
-				resources: [],
+				resources,
 				branding: {
 					companyName: 'OneBitFlix',
 					logo: '/public/logoOnebitflix.svg',

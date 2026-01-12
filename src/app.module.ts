@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { CategoriesModule } from './categories/categories.module'
 import { adminjsConfig } from './config/adminjs.config'
 import { validate } from './config/env.validation'
 import { serveStaticConfig } from './config/serve-static.config'
@@ -29,7 +30,8 @@ import { HealthModule } from './health/health.module'
 				return AdminModule.createAdminAsync(adminjsConfig.asProvider())
 			}
 		),
-		HealthModule
+		HealthModule,
+		CategoriesModule
 	]
 })
 export class AppModule {}
