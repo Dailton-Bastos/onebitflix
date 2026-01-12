@@ -7,6 +7,7 @@ import { adminjsConfig } from './config/adminjs.config'
 import { validate } from './config/env.validation'
 import { serveStaticConfig } from './config/serve-static.config'
 import { typeOrmConfig } from './config/typeOrm.config'
+import { CoursesModule } from './courses/courses.module'
 import { HealthModule } from './health/health.module'
 
 @Module({
@@ -31,7 +32,8 @@ import { HealthModule } from './health/health.module'
 			}
 		),
 		HealthModule,
-		CategoriesModule
+		CategoriesModule,
+		CoursesModule
 	]
 })
 export class AppModule {}

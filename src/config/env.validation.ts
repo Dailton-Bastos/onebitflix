@@ -79,6 +79,10 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	ADMINJS_SESSION_SECRET: string
+
+	@IsString()
+	@IsNotEmpty()
+	ADMINJS_LICENSE_KEY: string
 }
 
 export const validate = (config: Record<string, unknown>) => {

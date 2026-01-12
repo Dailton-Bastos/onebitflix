@@ -1,8 +1,10 @@
+import { Course } from 'src/courses/course.entity'
 import {
 	BaseEntity,
 	Column,
 	CreateDateColumn,
 	Entity,
+	OneToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
@@ -23,4 +25,10 @@ export class Category extends BaseEntity {
 
 	@UpdateDateColumn({ name: 'updated_at' })
 	updatedAt: Date
+
+	@OneToMany(
+		() => Course,
+		(course) => course.category
+	)
+	courses: Course[]
 }
