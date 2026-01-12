@@ -1,4 +1,5 @@
 import { AdminModuleOptions } from '@adminjs/nestjs'
+import { dark, light, noSidebar } from '@adminjs/themes'
 import { registerAs } from '@nestjs/config'
 import { resources } from 'src/common/adminjs/resources'
 import { configService } from './doenv.config'
@@ -35,7 +36,9 @@ export const adminjsConfig = registerAs(
 							hoverBg: '#151515'
 						}
 					}
-				}
+				},
+				defaultTheme: light.id,
+				availableThemes: [dark, light, noSidebar]
 			},
 			auth: {
 				cookieName: configService.getOrThrow<string>('ADMINJS_COOKIE_NAME'),
