@@ -32,7 +32,8 @@ export class Course extends BaseEntity {
 
 	@ManyToOne(
 		() => Category,
-		(category) => category.courses
+		(category) => category.courses,
+		{ cascade: ['update'], onDelete: 'RESTRICT' }
 	)
 	@JoinColumn({ name: 'category_id' })
 	category: Category
