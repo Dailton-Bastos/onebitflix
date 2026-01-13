@@ -59,7 +59,27 @@ export const resourceWithOptions = async (
 		},
 		{
 			resource: Course,
-			features: [targetRelationSettingsFeature()],
+			features: [
+				targetRelationSettingsFeature(),
+				uploadFeature({
+					componentLoader,
+					provider: new CustomLocalProvider({
+						bucket: path.join(__dirname, '../../../../public'),
+						opts: {
+							baseUrl: '/public'
+						}
+					}),
+					validation: {
+						mimeTypes: ['image/jpeg', 'image/png']
+					},
+					properties: {
+						key: 'thumbnailUrl',
+						file: 'uploadThumbnail'
+					},
+					uploadPath: (record, filename) =>
+						`thumbnails/course-${record.get('id')}/${filename}`
+				})
+			],
 			options: courseResourceOptions
 		},
 		{
