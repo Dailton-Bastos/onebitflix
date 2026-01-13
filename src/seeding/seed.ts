@@ -5,6 +5,8 @@ import CategorySeeder from '../categories/category.seeder'
 import dataSource from '../config/data-source.config'
 import CourseFactory from '../courses/course.factory'
 import CourseSeeder from '../courses/course.seeder'
+import EpisodeFactory from '../episodes/episode.factory'
+import EpisodeSeeder from '../episodes/episode.seeder'
 
 const logger = new Logger('Seeding')
 
@@ -21,8 +23,8 @@ const logger = new Logger('Seeding')
 		logger.log('Database is ready, starting seeding 🚀...')
 
 		await runSeeders(dataSource, {
-			seeds: [CategorySeeder, CourseSeeder],
-			factories: [CategoryFactory, CourseFactory]
+			seeds: [CategorySeeder, CourseSeeder, EpisodeSeeder],
+			factories: [CategoryFactory, CourseFactory, EpisodeFactory]
 		})
 
 		logger.log('Seeding completed successfully 🎉...')
