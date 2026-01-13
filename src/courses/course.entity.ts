@@ -1,4 +1,5 @@
 import { Category } from 'src/categories/category.entity'
+import { Episode } from 'src/episodes/episode.entity'
 import {
 	BaseEntity,
 	Column,
@@ -7,6 +8,7 @@ import {
 	Index,
 	JoinColumn,
 	ManyToOne,
+	OneToMany,
 	PrimaryGeneratedColumn,
 	RelationId,
 	UpdateDateColumn
@@ -47,4 +49,10 @@ export class Course extends BaseEntity {
 
 	@UpdateDateColumn({ name: 'updated_at' })
 	updatedAt: Date
+
+	@OneToMany(
+		() => Episode,
+		(episode) => episode.course
+	)
+	episodes: Episode[]
 }

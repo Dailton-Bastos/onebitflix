@@ -8,6 +8,7 @@ import { validate } from './config/env.validation'
 import { serveStaticConfig } from './config/serve-static.config'
 import { typeOrmConfig } from './config/typeOrm.config'
 import { CoursesModule } from './courses/courses.module'
+import { EpisodesModule } from './episodes/episodes.module'
 import { HealthModule } from './health/health.module'
 
 @Module({
@@ -33,7 +34,8 @@ import { HealthModule } from './health/health.module'
 		),
 		HealthModule,
 		CategoriesModule,
-		CoursesModule
+		CoursesModule,
+		EpisodesModule
 	]
 })
 export class AppModule {}
