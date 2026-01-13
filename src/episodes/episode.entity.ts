@@ -30,7 +30,7 @@ export class Episode extends BaseEntity {
 	@Column({ nullable: true, name: 'video_url' })
 	videoUrl: string
 
-	@Column()
+	@Column({ name: 'seconds_long' })
 	secondsLong: number
 
 	@CreateDateColumn({ name: 'created_at' })
