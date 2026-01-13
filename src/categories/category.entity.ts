@@ -4,6 +4,7 @@ import {
 	Column,
 	CreateDateColumn,
 	Entity,
+	Index,
 	OneToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
@@ -15,6 +16,7 @@ export class Category extends BaseEntity {
 	id: number
 
 	@Column()
+	@Index('IDX_CATEGORIES_NAME', { unique: true })
 	name: string
 
 	@Column()

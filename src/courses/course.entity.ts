@@ -4,6 +4,7 @@ import {
 	Column,
 	CreateDateColumn,
 	Entity,
+	Index,
 	JoinColumn,
 	ManyToOne,
 	PrimaryGeneratedColumn,
@@ -17,6 +18,7 @@ export class Course extends BaseEntity {
 	id: number
 
 	@Column()
+	@Index('IDX_COURSES_NAME', { unique: true })
 	name: string
 
 	@Column()
