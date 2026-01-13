@@ -30,7 +30,9 @@
 		"migration:create": "typeorm migration:create ./src/migrations/${MIGRATION_NAME}",
 		"migration:run": "yarn run typeorm migration:run",
 		"migration:revert": "yarn run typeorm migration:revert",
-		"migration:show": "yarn run typeorm migration:show"
+		"migration:show": "yarn run typeorm migration:show",
+		"seed:run": "yarn run build && ts-node -r tsconfig-paths/register src/seeding/seed.ts",
+		"database:drop": "yarn run typeorm schema:drop"
 	},
 	"lint-staged": {
 		"**.{js,ts,mjs,json,jsonc,spec.ts}": [
@@ -64,12 +66,14 @@
 		"pg": "^8.16.3",
 		"reflect-metadata": "^0.2.2",
 		"rxjs": "^7.8.2",
-		"typeorm": "^0.3.28"
+		"typeorm": "^0.3.28",
+		"typeorm-extension": "^3.7.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.11",
 		"@commitlint/cli": "^20.3.1",
 		"@commitlint/config-conventional": "^20.3.1",
+		"@faker-js/faker": "^10.2.0",
 		"@nestjs/cli": "^11.0.14",
 		"@nestjs/schematics": "^11.0.9",
 		"@nestjs/testing": "^11.1.11",

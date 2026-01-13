@@ -15,8 +15,8 @@ export const dataSourceOptions: PostgresConnectionOptions = {
 	dropSchema: Boolean(
 		Number(configService.getOrThrow<number>('DATABASE_DROP_SCHEMA'))
 	),
-	entities: ['dist/**/*.entity.js'],
-	migrations: ['dist/migrations/*.js']
+	entities: [`${__dirname}/../**/*.entity.{js,ts}`],
+	migrations: [`${__dirname}/../migrations/*.{js,ts}`]
 }
 
 const dataSource = new DataSource(dataSourceOptions)
