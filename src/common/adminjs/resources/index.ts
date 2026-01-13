@@ -8,10 +8,12 @@ import fsExtra from 'fs-extra'
 import { Category } from 'src/categories/category.entity'
 import { Course } from 'src/courses/course.entity'
 import { Episode } from 'src/episodes/episode.entity'
+import { User } from 'src/users/user.entity'
 import { configService } from '../../../config/doenv.config'
 import { categoryResourceOptions } from './category-resource-options'
 import { courseResourceOptions } from './course-resource-options'
 import { episodeResourceOptions } from './episode-resource-options'
+import { userResourceOptions } from './user-resource-options'
 
 export const resourceWithOptions = async (
 	componentLoader: ComponentLoader
@@ -118,6 +120,10 @@ export const resourceWithOptions = async (
 				})
 			],
 			options: episodeResourceOptions
+		},
+		{
+			resource: User,
+			options: userResourceOptions
 		}
 	]
 }
