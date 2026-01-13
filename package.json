@@ -50,6 +50,7 @@
 		"@adminjs/relations": "^1.1.2",
 		"@adminjs/themes": "^1.0.1",
 		"@adminjs/typeorm": "^5.0.1",
+		"@adminjs/upload": "^4.0.2",
 		"@nestjs/common": "^11.1.11",
 		"@nestjs/config": "^4.0.2",
 		"@nestjs/core": "^11.1.11",

@@ -1,6 +1,7 @@
 import { AdminModuleOptions } from '@adminjs/nestjs'
 import { dark, light, noSidebar } from '@adminjs/themes'
 import { registerAs } from '@nestjs/config'
+import { ComponentLoader } from 'adminjs'
 import { resourceWithOptions } from '../common/adminjs/resources'
 import { configService } from './doenv.config'
 
@@ -9,8 +10,10 @@ const DEFAULT_ADMIN = {
 	password: configService.getOrThrow<string>('ADMINJS_DEFAULT_PASSWORD')
 }
 
+const componentLoader = new ComponentLoader()
+
 export const adminjsConfig = registerAs('adminjs', async () => {
-	const resources = await resourceWithOptions()
+	const resources = await resourceWithOptions(componentLoader)
 
 	return {
 		adminJsOptions: {
@@ -38,7 +41,8 @@ export const adminjsConfig = registerAs('adminjs', async () => {
 				}
 			},
 			defaultTheme: light.id,
-			availableThemes: [dark, light, noSidebar]
+			availableThemes: [dark, light, noSidebar],
+			componentLoader
 		},
 		auth: {
 			cookieName: configService.getOrThrow<string>('ADMINJS_COOKIE_NAME'),

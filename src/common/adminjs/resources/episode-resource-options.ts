@@ -7,7 +7,7 @@ export const episodeResourceOptions: ResourceOptions = {
 		'name',
 		'synopsis',
 		'order',
-		'order',
+		'uploadVideo',
 		'secondsLong',
 		'courseId'
 	],
@@ -24,6 +24,7 @@ export const episodeResourceOptions: ResourceOptions = {
 		'name',
 		'synopsis',
 		'order',
+		'videoUrl',
 		'secondsLong',
 		'courseId'
 	],
