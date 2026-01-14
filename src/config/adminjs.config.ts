@@ -7,6 +7,7 @@ import {
 	type CurrentAdmin,
 	DefaultAuthProvider
 } from 'adminjs'
+import ptBRLocale from '../common/adminjs/i18n/pt-BR'
 import { resourceWithOptions } from '../common/adminjs/resources'
 import { UserRole } from '../common/constants'
 import { User } from '../users/user.entity'
@@ -84,7 +85,14 @@ export const adminjsConfig = registerAs('adminjs', async () => {
 			},
 			defaultTheme: light.id,
 			availableThemes: [dark, light, noSidebar],
-			componentLoader
+			componentLoader,
+			locale: {
+				language: 'pt-BR',
+				availableLanguages: ['pt-BR', 'en'],
+				translations: {
+					'pt-BR': ptBRLocale
+				}
+			}
 		},
 		auth: {
 			cookieName: configService.getOrThrow<string>('ADMINJS_COOKIE_NAME'),
