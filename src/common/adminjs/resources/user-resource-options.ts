@@ -45,7 +45,7 @@ export const userResourceOptions: ResourceOptions = {
 	],
 	properties: {
 		birth: { type: 'date' },
-		password: { type: 'password' },
+		password: { type: 'password', isVisible: { edit: true, list: true } },
 		role: {
 			availableValues: [
 				{

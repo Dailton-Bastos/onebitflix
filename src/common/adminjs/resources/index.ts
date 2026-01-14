@@ -1,4 +1,5 @@
 import path from 'node:path'
+import argon2 from '@node-rs/argon2'
 import {
 	ComponentLoader,
 	ResourceWithOptions,
@@ -24,10 +25,12 @@ export const resourceWithOptions = async (
 			owningRelationSettingsFeature,
 			targetRelationSettingsFeature
 		},
-		{ default: uploadFeature, LocalProvider }
+		{ default: uploadFeature, LocalProvider },
+		{ default: passwordsFeature }
 	] = await Promise.all([
 		import('@adminjs/relations'),
-		import('@adminjs/upload')
+		import('@adminjs/upload'),
+		import('@adminjs/passwords')
 	])
 
 	class CustomLocalProvider extends LocalProvider {
@@ -123,7 +126,17 @@ export const resourceWithOptions = async (
 		},
 		{
 			resource: User,
-			options: userResourceOptions
+			options: userResourceOptions,
+			features: [
+				passwordsFeature({
+					componentLoader,
+					properties: {
+						encryptedPassword: 'password',
+						password: 'password'
+					},
+					hash: argon2.hash
+				})
+			]
 		}
 	]
 }
