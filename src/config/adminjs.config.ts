@@ -1,16 +1,58 @@
 import { AdminModuleOptions } from '@adminjs/nestjs'
 import { dark, light, noSidebar } from '@adminjs/themes'
 import { registerAs } from '@nestjs/config'
-import { ComponentLoader } from 'adminjs'
+import argon2 from '@node-rs/argon2'
+import {
+	ComponentLoader,
+	type CurrentAdmin,
+	DefaultAuthProvider
+} from 'adminjs'
 import { resourceWithOptions } from '../common/adminjs/resources'
+import { UserRole } from '../common/constants'
+import { User } from '../users/user.entity'
+import dataSource from './data-source.config'
 import { configService } from './doenv.config'
 
-const DEFAULT_ADMIN = {
-	email: configService.getOrThrow<string>('ADMINJS_DEFAULT_EMAIL'),
-	password: configService.getOrThrow<string>('ADMINJS_DEFAULT_PASSWORD')
+const authenticate = async ({
+	email,
+	password
+}: {
+	email: string
+	password: string
+}) => {
+	try {
+		if (!dataSource.isInitialized) {
+			await dataSource.initialize()
+		}
+
+		const repository = dataSource.getRepository(User)
+
+		const user = await repository.findOne({ where: { email } })
+
+		if (user && user.role === UserRole.ADMIN) {
+			const isPasswordValid = await argon2.verify(user.password, password)
+
+			if (!isPasswordValid) return null
+
+			const currentAdmin: CurrentAdmin = {
+				id: user.id.toString(),
+				email: user.email,
+				title: user.role,
+				theme: light.id
+			}
+
+			return currentAdmin
+		}
+
+		return null
+	} catch {
+		return null
+	}
 }
 
 const componentLoader = new ComponentLoader()
+
+const authProvider = new DefaultAuthProvider({ componentLoader, authenticate })
 
 export const adminjsConfig = registerAs('adminjs', async () => {
 	const resources = await resourceWithOptions(componentLoader)
@@ -49,21 +91,18 @@ export const adminjsConfig = registerAs('adminjs', async () => {
 			cookiePassword: configService.getOrThrow<string>(
 				'ADMINJS_COOKIE_PASSWORD'
 			),
-			authenticate: async (email: string, password: string) => {
-				if (
-					email === DEFAULT_ADMIN.email &&
-					password === DEFAULT_ADMIN.password
-				) {
-					return Promise.resolve(DEFAULT_ADMIN)
-				}
-
-				return null
-			}
+			provider: authProvider
 		},
 		sessionOptions: {
 			resave: true,
 			saveUninitialized: true,
-			secret: configService.getOrThrow<string>('ADMINJS_SESSION_SECRET')
+			secret: configService.getOrThrow<string>('ADMINJS_SESSION_SECRET'),
+			cookie: {
+				maxAge: 1000 * 60 * 60 * 24, // 1 day
+				httpOnly: true,
+				secure: configService.getOrThrow<string>('NODE_ENV') === 'production',
+				sameSite: 'strict'
+			}
 		}
 	} as AdminModuleOptions
 })
