@@ -2,11 +2,9 @@ import { AdminModuleOptions } from '@adminjs/nestjs'
 import { dark, light, noSidebar } from '@adminjs/themes'
 import { registerAs } from '@nestjs/config'
 import argon2 from '@node-rs/argon2'
-import {
-	ComponentLoader,
-	type CurrentAdmin,
-	DefaultAuthProvider
-} from 'adminjs'
+import { type CurrentAdmin, DefaultAuthProvider } from 'adminjs'
+import { dashboardHandler } from 'src/common/adminjs/components/Dashboard/dashboardHandler'
+import { Components, componentLoader } from '../common/adminjs/components'
 import ptBRLocale from '../common/adminjs/i18n/pt-BR'
 import { resourceWithOptions } from '../common/adminjs/resources'
 import { UserRole } from '../common/constants'
@@ -38,7 +36,7 @@ const authenticate = async ({
 			const currentAdmin: CurrentAdmin = {
 				id: user.id.toString(),
 				email: user.email,
-				title: user.role,
+				title: `${user?.firstName ?? user?.email}`,
 				theme: light.id
 			}
 
@@ -50,8 +48,6 @@ const authenticate = async ({
 		return null
 	}
 }
-
-const componentLoader = new ComponentLoader()
 
 const authProvider = new DefaultAuthProvider({ componentLoader, authenticate })
 
@@ -86,6 +82,10 @@ export const adminjsConfig = registerAs('adminjs', async () => {
 			defaultTheme: light.id,
 			availableThemes: [dark, light, noSidebar],
 			componentLoader,
+			dashboard: {
+				component: Components.Dashboard,
+				handler: dashboardHandler
+			},
 			locale: {
 				language: 'pt-BR',
 				availableLanguages: ['pt-BR', 'en'],
