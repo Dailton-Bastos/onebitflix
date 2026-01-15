@@ -1,24 +1,19 @@
 import path from 'node:path'
 import argon2 from '@node-rs/argon2'
-import {
-	ComponentLoader,
-	ResourceWithOptions,
-	type UploadedFile
-} from 'adminjs'
+import { ResourceWithOptions, type UploadedFile } from 'adminjs'
 import fsExtra from 'fs-extra'
 import { Category } from 'src/categories/category.entity'
 import { Course } from 'src/courses/course.entity'
 import { Episode } from 'src/episodes/episode.entity'
 import { User } from 'src/users/user.entity'
 import { configService } from '../../../config/doenv.config'
+import { componentLoader } from '../components'
 import { categoryResourceOptions } from './category-resource-options'
 import { courseResourceOptions } from './course-resource-options'
 import { episodeResourceOptions } from './episode-resource-options'
 import { userResourceOptions } from './user-resource-options'
 
-export const resourceWithOptions = async (
-	componentLoader: ComponentLoader
-): Promise<ResourceWithOptions[]> => {
+export const resourceWithOptions = async (): Promise<ResourceWithOptions[]> => {
 	const [
 		{
 			RelationType,
