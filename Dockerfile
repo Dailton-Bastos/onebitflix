@@ -14,9 +14,20 @@ RUN mkdir -p /temp/prod
 COPY package.json yarn.lock /temp/prod/
 RUN cd /temp/prod && yarn install --frozen-lockfile --production
 
-# copy node_modules from temp directory
-# then copy all (non-ignored) project files into the image
+# copy all (non-ignored) project files into the image
 FROM base AS prerelease
+
+COPY --from=install /temp/dev/node_modules ./node_modules
+COPY src ./src
+COPY package.json ./
+COPY tsconfig.json ./
+COPY tsconfig.build.json ./
+
+# build the application
+RUN yarn build
+
+# copy development dependencies and source code into final image
+FROM base AS development
 
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.1/zsh-in-docker.sh)" -- \
     -p https://github.com/zsh-users/zsh-autosuggestions \
@@ -25,18 +36,14 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
 
 COPY --from=install /temp/dev/node_modules ./node_modules
 COPY --from=install /temp/dev/yarn.lock .
+COPY --from=prerelease /usr/src/app/dist ./dist
 COPY . .
 
 # start the application
 CMD ["yarn", "run", "start:dev"]
 
-# build the application
-RUN yarn build
-
-# copy production dependencies and source code into final image
-FROM node:22-alpine AS production
-
-WORKDIR /usr/src/app
+# copy production dependencies and dist folder into final image
+FROM base AS production
 
 COPY --from=install /temp/prod/node_modules ./node_modules
 COPY --from=prerelease /usr/src/app/dist ./dist
@@ -44,7 +51,7 @@ COPY --from=prerelease /usr/src/app/dist ./dist
 CMD ["node", "dist/main"]
 
 # test Stage
-FROM node:22-alpine AS test
+FROM base AS test
 
 WORKDIR /usr/src/app
 

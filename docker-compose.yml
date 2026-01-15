@@ -25,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: prerelease
+      target: development
     image: onebitflix-app-dev:latest
     container_name: onebitflix-app-dev
     ports:
