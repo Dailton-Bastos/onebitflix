@@ -9,5 +9,13 @@ export const labels = {
 	Course: 'Cursos',
 	Episode: 'Episódios',
 	Category: 'Categorias',
-	User: 'Usuários'
+	User: 'Usuários',
+	catalog: 'Catálogo',
+	administration: 'Administração',
+	'featured.true': 'Sim',
+	'featured.false': 'Não',
+	'labels.role.admin': 'Administrador',
+	'labels.role.user': 'Usuário Padrão',
+	'labels.role.Usuário Padrão': 'Usuário Padrão',
+	'labels.role.Administrador': 'Administrador'
 }

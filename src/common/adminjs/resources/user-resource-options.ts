@@ -3,7 +3,7 @@ import { UserRole } from '../../constants'
 
 export const userResourceOptions: ResourceOptions = {
 	id: 'User',
-	navigation: 'Administração',
+	navigation: 'administration',
 	editProperties: [
 		'firstName',
 		'lastName',

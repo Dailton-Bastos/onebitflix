@@ -9,5 +9,6 @@ export const buttons = {
 	logout: 'Sair',
 	login: 'Entrar',
 	seeTheDocumentation: 'Ver: <1>a documentação</1>',
-	createFirstRecord: 'Criar Primeiro Registro'
+	createFirstRecord: 'Criar Primeiro Registro',
+	contactUs: 'Fale Conosco'
 }
