@@ -20,3 +20,4 @@ coverage*
 .DS_Store
 biome.json
 commitlint.config.mjs
+bundle-adminjs.ts

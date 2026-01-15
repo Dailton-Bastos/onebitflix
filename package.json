@@ -32,7 +32,8 @@
 		"migration:revert": "yarn run typeorm migration:revert",
 		"migration:show": "yarn run typeorm migration:show",
 		"seed:run": "yarn run build && ts-node -r tsconfig-paths/register src/seeding/seed.ts",
-		"database:drop": "yarn run typeorm schema:drop"
+		"database:drop": "yarn run typeorm schema:drop",
+		"adminjs:bundle": "ts-node -r tsconfig-paths/register ./bundle-admin.ts"
 	},
 	"lint-staged": {
 		"**.{js,ts,mjs,json,jsonc,spec.ts}": [
@@ -66,6 +67,7 @@
 		"env-cmd": "^11.0.0",
 		"express-formidable": "^1.2.0",
 		"express-session": "^1.18.2",
+		"fs-extra": "^11.3.3",
 		"pg": "^8.16.3",
 		"reflect-metadata": "^0.2.2",
 		"rxjs": "^7.8.2",
@@ -73,6 +75,7 @@
 		"typeorm-extension": "^3.7.3"
 	},
 	"devDependencies": {
+		"@adminjs/bundler": "^3.0.0",
 		"@biomejs/biome": "2.3.11",
 		"@commitlint/cli": "^20.3.1",
 		"@commitlint/config-conventional": "^20.3.1",

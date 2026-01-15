@@ -5,6 +5,8 @@
 		"test",
 		"dist",
 		"src/seeding",
+		"public/adminjs",
+		"bundle-admin.ts",
 		"**/*factory.ts",
 		"**/*seeder.ts",
 		"**/*spec.ts"

@@ -113,6 +113,20 @@ services:
       db:
         condition: service_healthy
 
+  migrations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrations
+    image: onebitflix-migrations:latest
+    container_name: onebitflix-migrations
+    env_file:
+      - .env.production.local
+    profiles:
+      - migrations
+    networks:
+      - onebitflix-network
+
 networks:
   onebitflix-network:
     driver: bridge

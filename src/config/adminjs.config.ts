@@ -1,7 +1,7 @@
 import { AdminModuleOptions } from '@adminjs/nestjs'
 import { dark, light, noSidebar } from '@adminjs/themes'
 import { registerAs } from '@nestjs/config'
-import { dashboardHandler } from 'src/common/adminjs/components/Dashboard/dashboardHandler'
+import { dashboardHandler } from 'src/common/adminjs/components/dashboardHandler'
 import { Components, componentLoader } from '../common/adminjs/components'
 import { auth } from '../common/adminjs/config/auth'
 import { branding } from '../common/adminjs/config/branding'

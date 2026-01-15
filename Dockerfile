@@ -18,10 +18,10 @@ RUN cd /temp/prod && yarn install --frozen-lockfile --production
 FROM base AS prerelease
 
 COPY --from=install /temp/dev/node_modules ./node_modules
-COPY src ./src
-COPY package.json ./
-COPY tsconfig.json ./
-COPY tsconfig.build.json ./
+COPY . .
+
+# run the admin bundle script
+RUN yarn run adminjs:bundle
 
 # build the application
 RUN yarn build
@@ -47,6 +47,8 @@ FROM base AS production
 
 COPY --from=install /temp/prod/node_modules ./node_modules
 COPY --from=prerelease /usr/src/app/dist ./dist
+COPY --from=prerelease /usr/src/app/public ./public
+COPY --from=prerelease /usr/src/app/uploads ./uploads
 
 CMD ["node", "dist/main"]
 
@@ -64,3 +66,16 @@ RUN yarn install --frozen-lockfile
 
 # run the tests
 CMD ["yarn", "run", "test:e2e"]
+
+# run migrations
+FROM base AS migrations
+
+WORKDIR /usr/src/app
+
+COPY src ./src
+COPY package.json ./package.json
+COPY tsconfig.json ./tsconfig.json
+
+RUN yarn install --frozen-lockfile
+
+CMD ["yarn", "run", "migration:run"]

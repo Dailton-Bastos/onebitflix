@@ -83,6 +83,14 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	ADMINJS_LICENSE_KEY: string
+
+	@IsString()
+	@IsNotEmpty()
+	ADMIN_JS_SKIP_BUNDLE: string
+
+	@IsString()
+	@IsNotEmpty()
+	ADMIN_JS_TMP_DIR: string
 }
 
 export const validate = (config: Record<string, unknown>) => {
