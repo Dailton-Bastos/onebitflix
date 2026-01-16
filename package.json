@@ -114,7 +114,22 @@
 			"^.+\\.(t|j)s$": "ts-jest"
 		},
 		"collectCoverageFrom": [
-			"**/*.(t|j)s"
+			"**/*.(t|j)s",
+			"!**/*.module.ts",
+			"!**/*.factory.ts",
+			"!**/*.seeder.ts",
+			"!**/*.mock.ts",
+			"!**/*.dto.ts",
+			"!**/*.entity.ts"
+		],
+		"coveragePathIgnorePatterns": [
+			"<rootDir>/main.ts",
+			"<rootDir>/health/",
+			"<rootDir>/common/adminjs/",
+			"<rootDir>/common/constants/",
+			"<rootDir>/config/",
+			"<rootDir>/migrations/",
+			"<rootDir>/seeding/"
 		],
 		"coverageDirectory": "../coverage",
 		"testEnvironment": "node",
