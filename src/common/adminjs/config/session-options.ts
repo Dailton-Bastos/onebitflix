@@ -1,5 +1,5 @@
 import type { SessionOptions } from 'express-session'
-import { configService } from 'src/config/doenv.config'
+import { configService } from 'src/config/dotenv.config'
 
 export const sessionOptions: SessionOptions = {
 	resave: true,
