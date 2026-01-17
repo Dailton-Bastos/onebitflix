@@ -3,7 +3,7 @@ import { type INestApplication, ValidationPipe } from '@nestjs/common'
 export const appConfig = (app: INestApplication) => {
 	app.useGlobalPipes(
 		new ValidationPipe({
-			transform: false,
+			transform: true,
 			whitelist: true,
 			forbidNonWhitelisted: true
 		})

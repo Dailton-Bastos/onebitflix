@@ -13,7 +13,7 @@ describe('PaginationDto', () => {
 
 	it('should fails validation if limit is not a number', async () => {
 		const dto = plainToInstance(PaginationDto, {
-			limit: '10',
+			limit: 'invalid-limit',
 			offset: 0
 		})
 
@@ -56,7 +56,7 @@ describe('PaginationDto', () => {
 	it('should fails validation if offset is not a number', async () => {
 		const dto = plainToInstance(PaginationDto, {
 			limit: 10,
-			offset: '0'
+			offset: 'invalid-offset'
 		})
 
 		const errors = await validate(dto)
