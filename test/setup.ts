@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { CategoriesModule } from 'src/categories/categories.module'
 import { appConfig } from 'src/config/app.config'
 import { validate } from 'src/config/env.validation'
 import { serveStaticConfig } from 'src/config/serve-static.config'
@@ -22,7 +23,8 @@ global.beforeEach(async () => {
 			}),
 			ServeStaticModule.forRoot(serveStaticConfig()),
 			TypeOrmModule.forRootAsync(typeOrmConfig.asProvider()),
-			HealthModule
+			HealthModule,
+			CategoriesModule
 		]
 	}).compile()
 
