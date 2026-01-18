@@ -22,8 +22,18 @@ describe('CategoriesController', () => {
 		it('should return an array of categories', async () => {
 			const result = await controller.findAll()
 
-			expect(result.length).toBeGreaterThan(0)
-			expect(result).toEqual([categoryMock])
+			expect(result.data.length).toBeGreaterThan(0)
+			expect(result.data).toEqual([categoryMock])
+		})
+
+		it('should return an array of categories with pagination', async () => {
+			const result = await controller.findAll({ limit: 10, offset: 0 })
+
+			expect(result.data.length).toBeGreaterThan(0)
+			expect(result.total).toBeDefined()
+			expect(result.data).toEqual(expect.any(Array))
+			expect(result.page).toBeDefined()
+			expect(result.perPage).toBeDefined()
 		})
 	})
 })

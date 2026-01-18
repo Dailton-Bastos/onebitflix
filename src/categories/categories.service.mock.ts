@@ -17,7 +17,14 @@ export const categoryMock = {
 export const CategoriesServiceMock: Provider<MockType<CategoriesService>> = {
 	provide: CategoriesService,
 	useValue: {
-		findAll: jest.fn().mockResolvedValue([categoryMock])
+		findAll: jest.fn().mockResolvedValue({
+			data: [categoryMock],
+			total: 1,
+			page: 1,
+			perPage: 1,
+			nextPage: null,
+			previousPage: null
+		})
 	}
 }
 
@@ -25,6 +32,6 @@ export const CategoryRespositoryMock: Provider<MockType<Repository<Category>>> =
 	{
 		provide: getRepositoryToken(Category),
 		useValue: {
-			find: jest.fn().mockResolvedValue([categoryMock])
+			findAndCount: jest.fn().mockResolvedValue([[categoryMock], 1])
 		}
 	}
