@@ -1,16 +1,17 @@
-import { Controller, Get } from '@nestjs/common'
-import { Serialize } from '../common/interceptors/serialize.interceptor'
+import { Controller, Get, Query } from '@nestjs/common'
+import { PaginationDto } from 'src/common/dtos/pagination.dto'
+import { PaginatedResponseData } from 'src/common/interfaces'
 import { CategoriesService } from './categories.service'
 import { Category } from './category.entity'
-import { CategoryDto } from './dtos/category.dto'
 
 @Controller('categories')
-@Serialize<CategoryDto>(CategoryDto)
 export class CategoriesController {
 	constructor(private readonly categoriesService: CategoriesService) {}
 
 	@Get()
-	async findAll(): Promise<Category[]> {
-		return this.categoriesService.findAll()
+	async findAll(
+		@Query() paginationDto?: PaginationDto
+	): Promise<PaginatedResponseData<Category[]>> {
+		return this.categoriesService.findAll(paginationDto)
 	}
 }
