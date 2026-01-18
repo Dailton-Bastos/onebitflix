@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { PaginationDto } from 'src/common/dtos/pagination.dto'
+import { Order } from 'src/common/constants'
+import { PaginationOptionsDto } from 'src/common/pagination'
 import { Repository } from 'typeorm'
 import { CategoriesService } from './categories.service'
 import {
@@ -39,7 +40,7 @@ describe('CategoriesService', () => {
 			const result = await service.findAll()
 
 			expect(repository.findAndCount).toHaveBeenCalledWith({
-				order: { position: 'ASC' },
+				order: { position: Order.ASC },
 				take: 10,
 				skip: 0
 			})
@@ -47,128 +48,131 @@ describe('CategoriesService', () => {
 		})
 
 		it('should return an array of categories with pagination', async () => {
-			const limit = 10
-			const offset = 0
-			const total = 1
+			const take = 10
+			const itemCount = 1
 
-			const paginationDto: PaginationDto = {
-				limit,
-				offset
+			const paginationOptionsDto: PaginationOptionsDto = {
+				page: 1,
+				take,
+				order: Order.ASC,
+				skip: 0
 			}
-			const result = await service.findAll(paginationDto)
+
+			const result = await service.findAll(paginationOptionsDto)
 
 			expect(repository.findAndCount).toHaveBeenCalledWith({
-				order: { position: 'ASC' },
-				take: limit,
-				skip: offset
+				order: { position: paginationOptionsDto.order },
+				take: paginationOptionsDto.take,
+				skip: paginationOptionsDto.skip
 			})
 			expect(result.data).toEqual([categoryMock])
-			expect(result.total).toBe(total)
-			expect(result.page).toBe(1)
-			expect(result.perPage).toBe(10)
-			expect(result.nextPage).toBe(null)
-			expect(result.previousPage).toBe(null)
+			expect(result.meta.itemCount).toBe(itemCount)
+			expect(result.meta.page).toBe(paginationOptionsDto.page)
+			expect(result.meta.take).toBe(paginationOptionsDto.take)
+			expect(result.meta.hasPreviousPage).toBe(false)
+			expect(result.meta.hasNextPage).toBe(false)
 		})
 
 		it('should return an array of categories with pagination and next page', async () => {
-			const limit = 10
-			const offset = 0
-			const total = 16
+			const take = 10
+			const itemCount = 16
 
-			const paginationDto: PaginationDto = {
-				limit,
-				offset
+			const paginationOptionsDto: PaginationOptionsDto = {
+				page: 1,
+				take,
+				order: Order.ASC,
+				skip: 0
 			}
-			repository.findAndCount = jest
-				.fn()
-				.mockResolvedValue([[categoryMock], total])
 
-			const result = await service.findAll(paginationDto)
+			jest
+				.spyOn(repository, 'findAndCount')
+				.mockResolvedValue([
+					Array.from({ length: itemCount }, () => categoryMock),
+					itemCount
+				])
 
-			expect(repository.findAndCount).toHaveBeenCalledWith({
-				order: { position: 'ASC' },
-				take: limit,
-				skip: offset
-			})
+			const result = await service.findAll(paginationOptionsDto)
 
-			expect(result.data).toEqual([categoryMock])
-			expect(result.total).toBe(total)
-			expect(result.page).toBe(1)
-			expect(result.perPage).toBe(10)
-			expect(result.nextPage).toBeGreaterThan(1)
-			expect(result.previousPage).toBe(null)
+			expect(result.meta.itemCount).toBe(itemCount)
+			expect(result.meta.page).toBe(paginationOptionsDto.page)
+			expect(result.meta.take).toBe(paginationOptionsDto.take)
+			expect(result.meta.hasPreviousPage).toBe(false)
+			expect(result.meta.hasNextPage).toBe(true)
 		})
 
 		it('should return an array of categories with pagination and previous page', async () => {
-			const limit = 10
-			const offset = 11
-			const total = 16
+			const take = 4
+			const skip = 4
+			const itemCount = 16
 
-			const paginationDto: PaginationDto = {
-				limit,
-				offset
+			const paginationOptionsDto: PaginationOptionsDto = {
+				page: 4,
+				take,
+				order: Order.ASC,
+				skip
 			}
-			repository.findAndCount = jest
-				.fn()
-				.mockResolvedValue([[categoryMock], total])
 
-			const result = await service.findAll(paginationDto)
+			jest
+				.spyOn(repository, 'findAndCount')
+				.mockResolvedValue([
+					Array.from({ length: itemCount }, () => categoryMock),
+					itemCount
+				])
+
+			const result = await service.findAll(paginationOptionsDto)
+
+			expect(result.meta.itemCount).toBe(itemCount)
+			expect(result.meta.page).toBe(paginationOptionsDto.page)
+			expect(result.meta.take).toBe(paginationOptionsDto.take)
+			expect(result.meta.hasPreviousPage).toBe(true)
+			expect(result.meta.hasNextPage).toBe(false)
+		})
+
+		it('should return an array of categories with pagination and next page and previous page are true', async () => {
+			const take = 3
+			const skip = 6
+			const itemCount = 16
+
+			const paginationOptionsDto: PaginationOptionsDto = {
+				page: 3,
+				take,
+				order: Order.ASC,
+				skip
+			}
+
+			const result = await service.findAll(paginationOptionsDto)
 
 			expect(repository.findAndCount).toHaveBeenCalledWith({
 				order: { position: 'ASC' },
-				take: limit,
-				skip: offset
+				take: paginationOptionsDto.take,
+				skip: paginationOptionsDto.skip
 			})
 
-			expect(result.data).toEqual([categoryMock])
-			expect(result.total).toBe(total)
-			expect(result.page).toBeGreaterThan(1)
-			expect(result.perPage).toBe(10)
-			expect(result.nextPage).toBe(null)
-			expect(result.previousPage).toBeGreaterThan(0)
+			expect(result.meta.itemCount).toBe(itemCount)
+			expect(result.meta.page).toBe(paginationOptionsDto.page)
+			expect(result.meta.take).toBe(paginationOptionsDto.take)
+			expect(result.meta.hasPreviousPage).toBe(true)
+			expect(result.meta.hasNextPage).toBe(true)
 		})
 
-		it('should return an array of categories with pagination and next page and previous page', async () => {
-			const limit = 3
-			const offset = 6
-			const total = 16
+		it('should return an array of categories with pagination and next page and previous page are false', async () => {
+			const take = 16
+			const itemCount = 16
 
-			const paginationDto: PaginationDto = {
-				limit,
-				offset
+			const paginationOptionsDto: PaginationOptionsDto = {
+				page: 1,
+				take,
+				order: Order.ASC,
+				skip: 0
 			}
-			repository.findAndCount = jest
-				.fn()
-				.mockResolvedValue([[categoryMock], total])
 
-			const result = await service.findAll(paginationDto)
+			const result = await service.findAll(paginationOptionsDto)
 
-			expect(repository.findAndCount).toHaveBeenCalledWith({
-				order: { position: 'ASC' },
-				take: limit,
-				skip: offset
-			})
-
-			expect(result.nextPage).toBe(4)
-			expect(result.previousPage).toBe(2)
-			expect(result.page).toBe(3)
-		})
-
-		it('should return an array of categories with pagination and next page and previous  are null', async () => {
-			const limit = 16
-			const offset = 0
-			const total = 16
-
-			const paginationDto: PaginationDto = {
-				limit,
-				offset
-			}
-			repository.findAndCount = jest.fn().mockResolvedValue([[], total])
-
-			const result = await service.findAll(paginationDto)
-
-			expect(result.nextPage).toBe(null)
-			expect(result.previousPage).toBe(null)
+			expect(result.meta.itemCount).toBe(itemCount)
+			expect(result.meta.page).toBe(paginationOptionsDto.page)
+			expect(result.meta.take).toBe(paginationOptionsDto.take)
+			expect(result.meta.hasPreviousPage).toBe(false)
+			expect(result.meta.hasNextPage).toBe(false)
 		})
 	})
 })

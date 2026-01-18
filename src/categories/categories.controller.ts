@@ -1,6 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { PaginationDto } from 'src/common/dtos/pagination.dto'
-import { PaginatedResponseData } from 'src/common/interfaces'
+import { PaginationDto, PaginationOptionsDto } from 'src/common/pagination'
 import { CategoriesService } from './categories.service'
 import { Category } from './category.entity'
 
@@ -10,8 +9,8 @@ export class CategoriesController {
 
 	@Get()
 	async findAll(
-		@Query() paginationDto?: PaginationDto
-	): Promise<PaginatedResponseData<Category[]>> {
-		return this.categoriesService.findAll(paginationDto)
+		@Query() paginationOptionsDto?: PaginationOptionsDto
+	): Promise<PaginationDto<Category>> {
+		return this.categoriesService.findAll(paginationOptionsDto)
 	}
 }

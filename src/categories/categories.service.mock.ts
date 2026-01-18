@@ -19,11 +19,14 @@ export const CategoriesServiceMock: Provider<MockType<CategoriesService>> = {
 	useValue: {
 		findAll: jest.fn().mockResolvedValue({
 			data: [categoryMock],
-			total: 1,
-			page: 1,
-			perPage: 1,
-			nextPage: null,
-			previousPage: null
+			meta: {
+				page: 1,
+				take: 10,
+				itemCount: 1,
+				pageCount: 1,
+				hasPreviousPage: false,
+				hasNextPage: false
+			}
 		})
 	}
 }

@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { DEFAULT_PAGINATION_LIMIT } from 'src/common/constants'
-import { PaginationDto } from 'src/common/dtos/pagination.dto'
-import { PaginatedResponseData } from 'src/common/interfaces'
+import { DEFAULT_PAGINATION_LIMIT, Order } from 'src/common/constants'
+import {
+	PaginationDto,
+	PaginationMetaDto,
+	PaginationOptionsDto
+} from 'src/common/pagination'
 import { Repository } from 'typeorm'
 import { Category } from './category.entity'
 
@@ -14,24 +17,26 @@ export class CategoriesService {
 	) {}
 
 	async findAll(
-		paginationDto?: PaginationDto
-	): Promise<PaginatedResponseData<Category[]>> {
-		const { limit = DEFAULT_PAGINATION_LIMIT, offset = 0 } = paginationDto ?? {}
+		paginationOptionsDto?: PaginationOptionsDto
+	): Promise<PaginationDto<Category>> {
+		const {
+			order = Order.ASC,
+			take = DEFAULT_PAGINATION_LIMIT,
+			skip = 0,
+			page = 1
+		} = paginationOptionsDto ?? {}
 
-		const page = Math.floor(offset / limit) + 1
-		const perPage = limit
-
-		const [categories, total] = await this.categoryRepository.findAndCount({
-			order: { position: 'ASC' },
-			take: limit,
-			skip: offset // limit * (page - 1)
+		const [categories, itemCount] = await this.categoryRepository.findAndCount({
+			order: { position: order },
+			take,
+			skip
 		})
 
-		const nextPage =
-			total > offset + limit ? Math.floor(offset / limit) + 2 : null
+		const paginationMeta = new PaginationMetaDto({
+			itemCount,
+			options: { order, take, skip, page }
+		})
 
-		const previousPage = page > 1 ? Math.floor(offset / limit) : null
-
-		return { data: categories, total, page, perPage, nextPage, previousPage }
+		return new PaginationDto(categories, paginationMeta)
 	}
 }
