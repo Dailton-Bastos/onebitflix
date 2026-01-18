@@ -1,1 +1,1 @@
-export * from './paginated-response-data.interface'
+export * from './pagination-meta.interface'
