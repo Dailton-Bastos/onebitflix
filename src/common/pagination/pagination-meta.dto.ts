@@ -1,3 +1,4 @@
+import { PAGINATION_META_DEFAULT_VALUES } from '../constants'
 import { PaginationMeta } from '../interfaces'
 
 export class PaginationMetaDto {
@@ -13,7 +14,9 @@ export class PaginationMetaDto {
 
 	readonly hasNextPage: boolean
 
-	constructor({ options, itemCount }: PaginationMeta) {
+	constructor(params: PaginationMeta) {
+		const { options, itemCount } = params ?? PAGINATION_META_DEFAULT_VALUES
+
 		this.page = options.page
 		this.take = options.take
 		this.itemCount = itemCount
