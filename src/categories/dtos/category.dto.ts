@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer'
+import { Exclude, Expose } from 'class-transformer'
 
 export class CategoryDto {
 	@Expose()
@@ -9,4 +9,10 @@ export class CategoryDto {
 
 	@Expose()
 	position: number
+
+	@Exclude()
+	createdAt: Date
+
+	@Exclude()
+	updatedAt: Date
 }
