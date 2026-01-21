@@ -1,10 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PaginationOptionsDto } from 'src/common/pagination'
+import { courseMock } from 'src/courses/courses.service.mock'
 import { CategoriesController } from './categories.controller'
+import { CategoriesService } from './categories.service'
 import { CategoriesServiceMock, categoryMock } from './categories.service.mock'
 
 describe('CategoriesController', () => {
 	let controller: CategoriesController
+	let service: CategoriesService
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -13,6 +16,7 @@ describe('CategoriesController', () => {
 		}).compile()
 
 		controller = module.get<CategoriesController>(CategoriesController)
+		service = module.get<CategoriesService>(CategoriesService)
 	})
 
 	it('should be defined', () => {
@@ -41,6 +45,19 @@ describe('CategoriesController', () => {
 			expect(result.meta.hasPreviousPage).toBeDefined()
 			expect(result.meta.hasNextPage).toBeDefined()
 			expect(result.data).toEqual([categoryMock])
+		})
+	})
+
+	describe('findByIdWithCourses', () => {
+		it('should return a category with courses', async () => {
+			const result = await controller.findByIdWithCourses(categoryMock.id)
+
+			expect(service.findByIdWithCourses).toHaveBeenCalledWith(categoryMock.id)
+
+			expect(result).toBeDefined()
+			expect(result.id).toBe(categoryMock.id)
+			expect(result.courses).toBeDefined()
+			expect(result.courses).toEqual([courseMock])
 		})
 	})
 })

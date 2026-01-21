@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { CategoriesResponseDto } from 'src/common/dtos'
 import { Serialize } from 'src/common/interceptors'
 import { PaginationDto, PaginationOptionsDto } from 'src/common/pagination'
@@ -15,5 +15,10 @@ export class CategoriesController {
 		@Query() paginationOptionsDto?: PaginationOptionsDto
 	): Promise<PaginationDto<Category>> {
 		return this.categoriesService.findAll(paginationOptionsDto)
+	}
+
+	@Get('/:id')
+	async findByIdWithCourses(@Param('id') id: number): Promise<Category> {
+		return this.categoriesService.findByIdWithCourses(id)
 	}
 }

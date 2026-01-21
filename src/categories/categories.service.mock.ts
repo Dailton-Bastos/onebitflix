@@ -1,5 +1,6 @@
 import type { Provider } from '@nestjs/common'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import { courseMock } from 'src/courses/courses.service.mock'
 import { Repository } from 'typeorm'
 import { CategoriesService } from './categories.service'
 import { Category } from './category.entity'
@@ -27,6 +28,10 @@ export const CategoriesServiceMock: Provider<MockType<CategoriesService>> = {
 				hasPreviousPage: false,
 				hasNextPage: false
 			}
+		}),
+		findByIdWithCourses: jest.fn().mockResolvedValue({
+			...categoryMock,
+			courses: [courseMock]
 		})
 	}
 }
