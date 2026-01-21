@@ -59,5 +59,18 @@ describe('CategoriesController', () => {
 			expect(result.courses).toBeDefined()
 			expect(result.courses).toEqual([courseMock])
 		})
+
+		it('should return a existing category without createdAt and updatedAt properties', async () => {
+			const result = await controller.findByIdWithCourses(categoryMock.id)
+
+			expect(result).toBeDefined()
+			expect(result.id).toBe(categoryMock.id)
+			expect(result.name).toBe(categoryMock.name)
+			expect(result.position).toBe(categoryMock.position)
+			expect(result.courses).toBeDefined()
+			expect(result.courses).toEqual([courseMock])
+			expect(result.createdAt).toBeUndefined()
+			expect(result.updatedAt).toBeUndefined()
+		})
 	})
 })

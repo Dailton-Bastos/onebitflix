@@ -1,7 +1,9 @@
+import { NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Order } from 'src/common/constants'
 import { PaginationOptionsDto } from 'src/common/pagination'
+import { courseMock } from 'src/courses/courses.service.mock'
 import { Repository } from 'typeorm'
 import { CategoriesService } from './categories.service'
 import {
@@ -21,6 +23,8 @@ describe('CategoriesService', () => {
 
 		service = module.get<CategoriesService>(CategoriesService)
 		repository = module.get<Repository<Category>>(getRepositoryToken(Category))
+
+		jest.restoreAllMocks()
 	})
 
 	it('should be defined', () => {
@@ -173,6 +177,72 @@ describe('CategoriesService', () => {
 			expect(result.meta.take).toBe(paginationOptionsDto.take)
 			expect(result.meta.hasPreviousPage).toBe(false)
 			expect(result.meta.hasNextPage).toBe(false)
+		})
+	})
+
+	describe('findByIdWithCourses', () => {
+		it('should find a category with findOne repository method', async () => {
+			const id = 1
+
+			await service.findByIdWithCourses(id)
+
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id },
+				relations: {
+					courses: true
+				}
+			})
+		})
+
+		it('should return a category with courses', async () => {
+			const id = 1
+
+			const result = await service.findByIdWithCourses(id)
+
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id },
+				relations: {
+					courses: true
+				}
+			})
+
+			expect(result).toBeDefined()
+			expect(result.id).toBe(id)
+			expect(result.courses).toBeDefined()
+			expect(result.courses).toEqual([courseMock])
+		})
+
+		it('should return a category with empty courses array', async () => {
+			const id = 1
+
+			jest.spyOn(repository, 'findOne').mockResolvedValue({
+				...categoryMock,
+				courses: []
+			} as unknown as Category)
+
+			const result = await service.findByIdWithCourses(id)
+
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id },
+				relations: {
+					courses: true
+				}
+			})
+
+			expect(result).toBeDefined()
+			expect(result.id).toBe(id)
+			expect(result.courses).toBeDefined()
+			expect(result.courses).toEqual([])
+		})
+
+		it('should throw an error if the category is not found', async () => {
+			const id = 999
+
+			jest.spyOn(repository, 'findOne').mockResolvedValue(null)
+
+			await expect(service.findByIdWithCourses(id)).rejects.toThrow(
+				NotFoundException
+			)
 		})
 	})
 })

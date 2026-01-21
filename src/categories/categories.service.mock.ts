@@ -40,6 +40,10 @@ export const CategoryRespositoryMock: Provider<MockType<Repository<Category>>> =
 	{
 		provide: getRepositoryToken(Category),
 		useValue: {
-			findAndCount: jest.fn().mockResolvedValue([[categoryMock], 1])
+			findAndCount: jest.fn().mockResolvedValue([[categoryMock], 1]),
+			findOne: jest.fn().mockResolvedValue({
+				...categoryMock,
+				courses: [courseMock]
+			})
 		}
 	}
