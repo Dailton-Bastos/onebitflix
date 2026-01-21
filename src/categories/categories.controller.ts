@@ -4,8 +4,10 @@ import { Serialize } from 'src/common/interceptors'
 import { PaginationDto, PaginationOptionsDto } from 'src/common/pagination'
 import { CategoriesService } from './categories.service'
 import { Category } from './category.entity'
+import { CategoryDto } from './dtos'
 
 @Controller('categories')
+@Serialize(CategoryDto)
 export class CategoriesController {
 	constructor(private readonly categoriesService: CategoriesService) {}
 

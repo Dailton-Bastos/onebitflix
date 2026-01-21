@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { DEFAULT_PAGINATION_LIMIT, Order } from 'src/common/constants'
 import {
@@ -38,5 +38,20 @@ export class CategoriesService {
 		})
 
 		return new PaginationDto(categories, paginationMeta)
+	}
+
+	async findByIdWithCourses(id: number): Promise<Category> {
+		const category = await this.categoryRepository.findOne({
+			where: { id },
+			relations: {
+				courses: true
+			}
+		})
+
+		if (!category) {
+			throw new NotFoundException('category not found')
+		}
+
+		return category
 	}
 }
