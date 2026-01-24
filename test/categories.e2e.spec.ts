@@ -57,6 +57,16 @@ describe('Categories (e2e)', () => {
 		})
 	})
 
+	describe('GET /api/categories/:id', () => {
+		it('should return an error if the category is not found', async () => {
+			const response = await request(app.getHttpServer())
+				.get('/api/categories/1')
+				.expect(HttpStatus.NOT_FOUND)
+
+			expect(response.body.message).toBe('category not found')
+		})
+	})
+
 	afterAll(async () => {
 		await app.close()
 	})
