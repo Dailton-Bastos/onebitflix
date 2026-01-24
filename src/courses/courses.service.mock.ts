@@ -14,9 +14,7 @@ export const courseMock = {
 	name: 'course',
 	synopsis: 'synopsis',
 	featured: false,
-	categoryId: 1,
-	createdAt: new Date(),
-	updatedAt: new Date()
+	categoryId: 1
 } as Course
 
 export const CoursesServiceMock: Provider<MockType<CoursesService>> = {

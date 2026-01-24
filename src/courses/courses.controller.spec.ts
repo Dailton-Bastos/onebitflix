@@ -37,5 +37,14 @@ describe('CoursesController', () => {
 			expect(result.thumbnailUrl).toBe(courseMock.thumbnailUrl)
 			expect(result.episodes).toEqual([episodeMock])
 		})
+
+		it('should return a existing course without createdAt and updatedAt properties', async () => {
+			const result = await controller.findByIdWithEpisodes(courseMock.id)
+
+			expect(result).toBeDefined()
+
+			expect(result.createdAt).toBeUndefined()
+			expect(result.updatedAt).toBeUndefined()
+		})
 	})
 })

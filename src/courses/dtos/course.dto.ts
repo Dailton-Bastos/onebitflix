@@ -1,4 +1,5 @@
-import { Exclude, Expose } from 'class-transformer'
+import { Exclude, Expose, Type } from 'class-transformer'
+import { EpisodeDto } from 'src/episodes/dtos'
 
 export class CourseDto {
 	@Expose()
@@ -16,7 +17,7 @@ export class CourseDto {
 	@Expose()
 	thumbnailUrl: string
 
-	@Expose()
+	@Exclude()
 	categoryId: number
 
 	@Exclude()
@@ -24,4 +25,8 @@ export class CourseDto {
 
 	@Exclude()
 	updatedAt: Date
+
+	@Expose()
+	@Type(() => EpisodeDto)
+	episodes: EpisodeDto[]
 }
