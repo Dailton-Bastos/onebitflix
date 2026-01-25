@@ -32,26 +32,12 @@ describe('CoursesService', () => {
 			const id = 1
 
 			await service.findByIdWithEpisodes(id)
-
-			expect(repository.findOne).toHaveBeenCalledWith({
-				where: { id },
-				relations: {
-					episodes: true
-				}
-			})
 		})
 
 		it('should return a course with episodes', async () => {
 			const id = 1
 
 			const result = await service.findByIdWithEpisodes(id)
-
-			expect(repository.findOne).toHaveBeenCalledWith({
-				where: { id },
-				relations: {
-					episodes: true
-				}
-			})
 
 			expect(result).toBeDefined()
 			expect(result.id).toBe(id)
@@ -72,17 +58,27 @@ describe('CoursesService', () => {
 
 			const result = await service.findByIdWithEpisodes(id)
 
-			expect(repository.findOne).toHaveBeenCalledWith({
-				where: { id },
-				relations: {
-					episodes: true
-				}
-			})
-
 			expect(result).toBeDefined()
 			expect(result.id).toBe(id)
 			expect(result.episodes).toBeDefined()
 			expect(result.episodes).toEqual([])
+		})
+
+		it('should return a course with episodes ordered by order property', async () => {
+			const id = 1
+
+			jest.spyOn(repository, 'findOne').mockResolvedValue({
+				...courseMock,
+				episodes: [episodeMock]
+			} as unknown as Course)
+
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id },
+				relations: {
+					episodes: true
+				},
+				order: { episodes: { order: 'ASC' } }
+			})
 		})
 
 		it('should throw an error if the course is not found', async () => {

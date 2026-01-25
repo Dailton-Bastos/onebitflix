@@ -15,7 +15,8 @@ export class CoursesService {
 			where: { id },
 			relations: {
 				episodes: true
-			}
+			},
+			order: { episodes: { order: 'ASC' } }
 		})
 
 		if (!course) {
