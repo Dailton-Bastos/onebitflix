@@ -45,7 +45,18 @@ export const CoursesServiceMock: Provider<MockType<CoursesService>> = {
 					...courseMock,
 					id: index + 1
 				})) as Course[]
-		)
+		),
+		searchByCourseName: jest.fn().mockResolvedValue({
+			data: [courseMock],
+			meta: {
+				page: 1,
+				take: 10,
+				itemCount: 1,
+				pageCount: 1,
+				hasPreviousPage: false,
+				hasNextPage: false
+			}
+		})
 	}
 }
 
@@ -79,6 +90,7 @@ export const CourseRepositoryMock: Provider<MockType<Repository<Course>>> = {
 				{ ...courseMock, id: 2 },
 				{ ...courseMock, id: 3 }
 			] as Course[])
-		} as unknown as QueryBuilder<Course>)
+		} as unknown as QueryBuilder<Course>),
+		findAndCount: jest.fn().mockResolvedValue([[courseMock], 1])
 	}
 }

@@ -1,12 +1,13 @@
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Order } from 'src/common/constants'
 import { episodeMock } from 'src/episodes/episodes.service.mock'
-import { Repository } from 'typeorm'
+import { ILike, Repository } from 'typeorm'
 import { Course } from './course.entity'
 import { CoursesService } from './courses.service'
 import { CourseRepositoryMock, courseMock } from './courses.service.mock'
+import { SearchDto } from './dtos'
 
 describe('CoursesService', () => {
 	let service: CoursesService
@@ -136,6 +137,47 @@ describe('CoursesService', () => {
 
 			expect(result).toBeDefined()
 			expect(result.length).toBe(10)
+		})
+	})
+
+	describe('searchByCourseName', () => {
+		it('should throw an error if the name is empty', async () => {
+			const searchDto = {
+				name: ''
+			} as unknown as SearchDto
+
+			await expect(service.searchByCourseName(searchDto)).rejects.toThrow(
+				BadRequestException
+			)
+		})
+
+		it('should return courses by name', async () => {
+			const searchDto: SearchDto = {
+				name: 'test',
+				page: 1,
+				take: 10,
+				order: Order.DESC,
+				skip: 0
+			}
+
+			const result = await service.searchByCourseName(searchDto)
+
+			expect(repository.findAndCount).toHaveBeenCalledWith({
+				where: { name: ILike(`%${searchDto.name}%`) },
+				order: { createdAt: Order.DESC },
+				take: searchDto.take,
+				skip: searchDto.skip
+			})
+
+			expect(result).toBeDefined()
+			expect(result.data).toBeDefined()
+			expect(result.data).toEqual([courseMock])
+			expect(result.meta).toBeDefined()
+			expect(result.meta.itemCount).toBe(1)
+			expect(result.meta.page).toBe(searchDto.page)
+			expect(result.meta.take).toBe(searchDto.take)
+			expect(result.meta.hasPreviousPage).toBe(false)
+			expect(result.meta.hasNextPage).toBe(false)
 		})
 	})
 })

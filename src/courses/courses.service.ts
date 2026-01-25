@@ -1,8 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Order } from 'src/common/constants'
-import { Repository } from 'typeorm'
+import { DEFAULT_PAGINATION_LIMIT, Order } from 'src/common/constants'
+import { PaginationDto, PaginationMetaDto } from 'src/common/pagination'
+import { ILike, Repository } from 'typeorm'
 import { Course } from './course.entity'
+import { SearchDto } from './dtos'
 
 @Injectable()
 export class CoursesService {
@@ -45,5 +51,36 @@ export class CoursesService {
 		})
 
 		return courses
+	}
+
+	async searchByCourseName(
+		searchDto: SearchDto
+	): Promise<PaginationDto<Course>> {
+		const { name } = searchDto
+
+		const {
+			order = Order.DESC,
+			take = DEFAULT_PAGINATION_LIMIT,
+			skip = 0,
+			page = 1
+		} = searchDto ?? {}
+
+		if (!name) {
+			throw new BadRequestException('name is required')
+		}
+
+		const [courses, itemCount] = await this.courseRepository.findAndCount({
+			where: { name: ILike(`%${name}%`) },
+			order: { createdAt: order },
+			take,
+			skip
+		})
+
+		const paginationMeta = new PaginationMetaDto({
+			itemCount,
+			options: { order, take, skip, page }
+		})
+
+		return new PaginationDto(courses, paginationMeta)
 	}
 }

@@ -1,6 +1,8 @@
 import { PAGINATION_META_DEFAULT_VALUES } from '../constants'
 import { PaginationMeta } from '../interfaces'
 
+import 'reflect-metadata'
+
 export class PaginationMetaDto {
 	readonly page: number
 

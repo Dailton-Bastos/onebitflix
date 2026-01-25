@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { Order } from 'src/common/constants'
 import { episodeMock } from 'src/episodes/episodes.service.mock'
 import { CoursesController } from './courses.controller'
 import { CoursesService } from './courses.service'
 import { CoursesServiceMock, courseMock } from './courses.service.mock'
+import { SearchDto } from './dtos'
 
 describe('CoursesController', () => {
 	let controller: CoursesController
@@ -75,6 +77,34 @@ describe('CoursesController', () => {
 
 			expect(result).toBeDefined()
 			expect(result.length).toBe(10)
+		})
+	})
+
+	describe('searchByCourseName', () => {
+		const searchDto: SearchDto = {
+			name: 'test',
+			page: 1,
+			take: 10,
+			skip: 0,
+			order: Order.ASC
+		}
+
+		it('should return courses by name', async () => {
+			const result = await controller.searchByCourseName(searchDto)
+
+			expect(service.searchByCourseName).toHaveBeenCalledWith(searchDto)
+
+			expect(result).toBeDefined()
+		})
+
+		it('should return courses by name with pagination', async () => {
+			const result = await controller.searchByCourseName(searchDto)
+
+			expect(service.searchByCourseName).toHaveBeenCalledWith(searchDto)
+
+			expect(result).toBeDefined()
+			expect(result.data).toBeDefined()
+			expect(result.meta).toBeDefined()
 		})
 	})
 })
