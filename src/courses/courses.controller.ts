@@ -14,6 +14,11 @@ export class CoursesController {
 		return this.coursesService.getRandomFeaturedCourses()
 	}
 
+	@Get('/newest')
+	async getTopTenNewestCourses(): Promise<Course[]> {
+		return this.coursesService.getTopTenNewestCourses()
+	}
+
 	@Get('/:id')
 	async findByIdWithEpisodes(@Param('id') id: number): Promise<Course> {
 		return this.coursesService.findByIdWithEpisodes(id)

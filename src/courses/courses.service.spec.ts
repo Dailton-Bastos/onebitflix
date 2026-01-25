@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import { Order } from 'src/common/constants'
 import { episodeMock } from 'src/episodes/episodes.service.mock'
 import { Repository } from 'typeorm'
 import { Course } from './course.entity'
@@ -109,6 +110,32 @@ describe('CoursesService', () => {
 
 			expect(result).toBeDefined()
 			expect(result.length).toBe(3)
+		})
+	})
+
+	describe('getTopTenNewestCourses', () => {
+		it('should return top ten newest courses', async () => {
+			const find = jest.spyOn(repository, 'find')
+
+			find.mockImplementation(() =>
+				Promise.resolve(
+					Array(10)
+						.fill(null)
+						.map((_, index) => ({
+							...courseMock,
+							id: index + 1
+						})) as Course[]
+				)
+			)
+			const result = await service.getTopTenNewestCourses()
+
+			expect(repository.find).toHaveBeenCalledWith({
+				order: { createdAt: Order.DESC },
+				take: 10
+			})
+
+			expect(result).toBeDefined()
+			expect(result.length).toBe(10)
 		})
 	})
 })

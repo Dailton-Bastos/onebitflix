@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { Order } from 'src/common/constants'
 import { Repository } from 'typeorm'
 import { Course } from './course.entity'
 
@@ -16,7 +17,7 @@ export class CoursesService {
 			relations: {
 				episodes: true
 			},
-			order: { episodes: { order: 'ASC' } }
+			order: { episodes: { order: Order.ASC } }
 		})
 
 		if (!course) {
@@ -33,6 +34,15 @@ export class CoursesService {
 			.orderBy('RANDOM()')
 			.take(3)
 			.getMany()
+
+		return courses
+	}
+
+	async getTopTenNewestCourses(): Promise<Course[]> {
+		const courses = await this.courseRepository.find({
+			take: 10,
+			order: { createdAt: Order.DESC }
+		})
 
 		return courses
 	}

@@ -37,7 +37,15 @@ export const CoursesServiceMock: Provider<MockType<CoursesService>> = {
 				...courseMock,
 				id: 3
 			}
-		] as Course[])
+		] as Course[]),
+		getTopTenNewestCourses: jest.fn().mockResolvedValue(
+			Array(10)
+				.fill(null)
+				.map((_, index) => ({
+					...courseMock,
+					id: index + 1
+				})) as Course[]
+		)
 	}
 }
 

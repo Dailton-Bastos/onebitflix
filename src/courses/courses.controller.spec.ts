@@ -66,4 +66,15 @@ describe('CoursesController', () => {
 			expect(result[1]).not.toBe(result[2])
 		})
 	})
+
+	describe('getTopTenNewestCourses', () => {
+		it('should return top ten newest courses', async () => {
+			const result = await controller.getTopTenNewestCourses()
+
+			expect(service.getTopTenNewestCourses).toHaveBeenCalled()
+
+			expect(result).toBeDefined()
+			expect(result.length).toBe(10)
+		})
+	})
 })
