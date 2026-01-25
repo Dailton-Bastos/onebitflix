@@ -91,4 +91,24 @@ describe('CoursesService', () => {
 			)
 		})
 	})
+
+	describe('getRandomFeaturedCourses', () => {
+		it('should return random three featured courses', async () => {
+			const result = await service.getRandomFeaturedCourses()
+
+			expect(repository.createQueryBuilder).toHaveBeenCalledWith('courses')
+			expect(repository.createQueryBuilder().where).toHaveBeenCalledWith(
+				'courses.featured = :featured',
+				{ featured: true }
+			)
+			expect(repository.createQueryBuilder().orderBy).toHaveBeenCalledWith(
+				'RANDOM()'
+			)
+			expect(repository.createQueryBuilder().take).toHaveBeenCalledWith(3)
+			expect(repository.createQueryBuilder().getMany).toHaveBeenCalled()
+
+			expect(result).toBeDefined()
+			expect(result.length).toBe(3)
+		})
+	})
 })

@@ -25,4 +25,15 @@ export class CoursesService {
 
 		return course
 	}
+
+	async getRandomFeaturedCourses(): Promise<Course[]> {
+		const courses = await this.courseRepository
+			.createQueryBuilder('courses')
+			.where('courses.featured = :featured', { featured: true })
+			.orderBy('RANDOM()')
+			.take(3)
+			.getMany()
+
+		return courses
+	}
 }

@@ -9,6 +9,11 @@ import { CourseDto } from './dtos'
 export class CoursesController {
 	constructor(private readonly coursesService: CoursesService) {}
 
+	@Get('/featured')
+	async getRandomFeaturedCourses(): Promise<Course[]> {
+		return this.coursesService.getRandomFeaturedCourses()
+	}
+
 	@Get('/:id')
 	async findByIdWithEpisodes(@Param('id') id: number): Promise<Course> {
 		return this.coursesService.findByIdWithEpisodes(id)

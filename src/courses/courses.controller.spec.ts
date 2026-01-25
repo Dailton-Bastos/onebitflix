@@ -47,4 +47,23 @@ describe('CoursesController', () => {
 			expect(result.updatedAt).toBeUndefined()
 		})
 	})
+
+	describe('findFeaturedCourses', () => {
+		it('should return random three featured courses', async () => {
+			const result = await controller.getRandomFeaturedCourses()
+
+			expect(service.getRandomFeaturedCourses).toHaveBeenCalled()
+
+			expect(result).toBeDefined()
+			expect(result.length).toBe(3)
+			expect(result).toEqual([
+				{ ...courseMock, id: 1 },
+				{ ...courseMock, id: 2 },
+				{ ...courseMock, id: 3 }
+			])
+			expect(result[0]).not.toBe(result[1])
+			expect(result[0]).not.toBe(result[2])
+			expect(result[1]).not.toBe(result[2])
+		})
+	})
 })
