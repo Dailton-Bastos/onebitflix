@@ -2,18 +2,23 @@ import type { INestApplication } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { Test, TestingModule } from '@nestjs/testing'
-import { TypeOrmModule } from '@nestjs/typeorm'
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm'
 import { CategoriesModule } from 'src/categories/categories.module'
+import { Category } from 'src/categories/category.entity'
 import { appConfig } from 'src/config/app.config'
 import { validate } from 'src/config/env.validation'
 import { serveStaticConfig } from 'src/config/serve-static.config'
 import { typeOrmConfig } from 'src/config/typeOrm.config'
+import { Course } from 'src/courses/course.entity'
 import { CoursesModule } from 'src/courses/courses.module'
 import { EpisodesModule } from 'src/episodes/episodes.module'
 import { HealthModule } from 'src/health/health.module'
 import type { App } from 'supertest/types'
+import { Repository } from 'typeorm'
 
-export let app: INestApplication<App>
+let app: INestApplication<App>
+let categoryRepository: Repository<Category>
+let courseRepository: Repository<Course>
 
 global.beforeEach(async () => {
 	const module: TestingModule = await Test.createTestingModule({
@@ -33,6 +38,10 @@ global.beforeEach(async () => {
 	}).compile()
 
 	app = module.createNestApplication<INestApplication<App>>()
+	categoryRepository = module.get<Repository<Category>>(
+		getRepositoryToken(Category)
+	)
+	courseRepository = module.get<Repository<Course>>(getRepositoryToken(Course))
 
 	appConfig(app)
 
@@ -40,3 +49,5 @@ global.beforeEach(async () => {
 })
 
 global.afterEach(async () => await app.close())
+
+export { app, categoryRepository, courseRepository }

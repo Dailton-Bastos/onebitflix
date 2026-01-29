@@ -17,7 +17,7 @@ export class CourseDto {
 	@Expose()
 	thumbnailUrl: string
 
-	@Exclude()
+	@Exclude({ toPlainOnly: true })
 	categoryId: number
 
 	@Exclude()

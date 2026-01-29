@@ -1,18 +1,26 @@
 import { HttpStatus } from '@nestjs/common'
-import { CategoryDto } from 'src/categories/dtos'
 import { Order, PAGINATION_META_DEFAULT_VALUES } from 'src/common/constants'
 import { PaginationOptionsDto } from 'src/common/pagination'
 import request from 'supertest'
-import { app } from './setup'
+import { app, categoryRepository, courseRepository } from './setup'
 
 describe('Categories (e2e)', () => {
 	describe('GET /api/categories', () => {
 		it('should return an array of categories', async () => {
+			const categoryData = categoryRepository.create({
+				name: 'test category',
+				position: 1
+			})
+
+			const category = await categoryRepository.save(categoryData)
+
 			const response = await request(app.getHttpServer())
 				.get('/api/categories')
 				.expect(HttpStatus.OK)
 
-			expect(response.body.data).toBeInstanceOf(Array<typeof CategoryDto>)
+			expect(response.body.data[0].id).toBe(category.id)
+			expect(response.body.data[0].name).toBe(category.name)
+			expect(response.body.data[0].position).toBe(category.position)
 		})
 
 		it('should return an array of categories with pagination', async () => {
@@ -28,6 +36,7 @@ describe('Categories (e2e)', () => {
 				.query(paginationOptionsDto)
 				.expect(HttpStatus.OK)
 
+			expect(response.body.data).toBeDefined()
 			expect(response.body.meta).toBeDefined()
 			expect(response.body.meta.hasNextPage).toBeDefined()
 			expect(response.body.meta.hasPreviousPage).toBeDefined()
@@ -42,6 +51,7 @@ describe('Categories (e2e)', () => {
 				.get('/api/categories')
 				.expect(HttpStatus.OK)
 
+			expect(response.body.data).toBeInstanceOf(Array)
 			expect(response.body.meta.hasNextPage).toBeFalsy()
 			expect(response.body.meta.hasPreviousPage).toBeFalsy()
 			expect(response.body.meta.page).toBe(
@@ -64,6 +74,56 @@ describe('Categories (e2e)', () => {
 				.expect(HttpStatus.NOT_FOUND)
 
 			expect(response.body.message).toBe('category not found')
+		})
+
+		it('should return a category with courses', async () => {
+			const categoryData = categoryRepository.create({
+				name: 'test category',
+				position: 1
+			})
+
+			const category = await categoryRepository.save(categoryData)
+
+			const courseData = courseRepository.create({
+				name: 'test course',
+				synopsis: 'test synopsis',
+				category
+			})
+
+			const course = await courseRepository.save(courseData)
+
+			const response = await request(app.getHttpServer())
+				.get(`/api/categories/${category.id}`)
+				.expect(HttpStatus.OK)
+
+			expect(response.body.id).toBe(category.id)
+			expect(response.body.name).toBe(category.name)
+			expect(response.body.position).toBe(category.position)
+			expect(response.body.courses).toBeDefined()
+			expect(response.body.courses[0].id).toEqual(course.id)
+			expect(response.body.courses[0].name).toEqual(course.name)
+			expect(response.body.courses[0].synopsis).toEqual(course.synopsis)
+			expect(response.body.courses[0].featured).toEqual(course.featured)
+			expect(response.body.courses[0].thumbnailUrl).toEqual(course.thumbnailUrl)
+			expect(response.body.courses[0].categoryId).toEqual(course.categoryId)
+		})
+
+		it('should return a existing category without createdAt and updatedAt properties', async () => {
+			const categoryData = categoryRepository.create({
+				name: 'test category',
+				position: 1
+			})
+
+			const category = await categoryRepository.save(categoryData)
+
+			const response = await request(app.getHttpServer())
+				.get(`/api/categories/${category.id}`)
+				.expect(HttpStatus.OK)
+
+			expect(response.body).toBeDefined()
+			expect(response.body.id).toBe(category.id)
+			expect(response.body.createdAt).toBeUndefined()
+			expect(response.body.updatedAt).toBeUndefined()
 		})
 	})
 
