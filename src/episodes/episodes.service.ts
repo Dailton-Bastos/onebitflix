@@ -53,7 +53,7 @@ export class EpisodesService {
 
 			return createReadStream(filePath, { start, end }).pipe<Response>(response)
 		} catch (error) {
-			if (error instanceof Error && error.message.includes('ENOENT')) {
+			if (error?.stack?.includes('ENOENT')) {
 				throw new NotFoundException('video not found')
 			}
 
