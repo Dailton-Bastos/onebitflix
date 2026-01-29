@@ -11,6 +11,7 @@ import { serveStaticConfig } from 'src/config/serve-static.config'
 import { typeOrmConfig } from 'src/config/typeOrm.config'
 import { Course } from 'src/courses/course.entity'
 import { CoursesModule } from 'src/courses/courses.module'
+import { Episode } from 'src/episodes/episode.entity'
 import { EpisodesModule } from 'src/episodes/episodes.module'
 import { HealthModule } from 'src/health/health.module'
 import type { App } from 'supertest/types'
@@ -19,6 +20,7 @@ import { Repository } from 'typeorm'
 let app: INestApplication<App>
 let categoryRepository: Repository<Category>
 let courseRepository: Repository<Course>
+let episodeRepository: Repository<Episode>
 
 global.beforeEach(async () => {
 	const module: TestingModule = await Test.createTestingModule({
@@ -42,6 +44,9 @@ global.beforeEach(async () => {
 		getRepositoryToken(Category)
 	)
 	courseRepository = module.get<Repository<Course>>(getRepositoryToken(Course))
+	episodeRepository = module.get<Repository<Episode>>(
+		getRepositoryToken(Episode)
+	)
 
 	appConfig(app)
 
@@ -50,4 +55,4 @@ global.beforeEach(async () => {
 
 global.afterEach(async () => await app.close())
 
-export { app, categoryRepository, courseRepository }
+export { app, categoryRepository, courseRepository, episodeRepository }
