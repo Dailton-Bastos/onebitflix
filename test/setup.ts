@@ -9,6 +9,7 @@ import { validate } from 'src/config/env.validation'
 import { serveStaticConfig } from 'src/config/serve-static.config'
 import { typeOrmConfig } from 'src/config/typeOrm.config'
 import { CoursesModule } from 'src/courses/courses.module'
+import { EpisodesModule } from 'src/episodes/episodes.module'
 import { HealthModule } from 'src/health/health.module'
 import type { App } from 'supertest/types'
 
@@ -26,7 +27,8 @@ global.beforeEach(async () => {
 			TypeOrmModule.forRootAsync(typeOrmConfig.asProvider()),
 			HealthModule,
 			CategoriesModule,
-			CoursesModule
+			CoursesModule,
+			EpisodesModule
 		]
 	}).compile()
 
