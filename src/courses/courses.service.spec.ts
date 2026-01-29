@@ -156,8 +156,7 @@ describe('CoursesService', () => {
 				name: 'test',
 				page: 1,
 				take: 10,
-				order: Order.DESC,
-				skip: 0
+				order: Order.DESC
 			}
 
 			const result = await service.searchByCourseName(searchDto)
@@ -166,7 +165,7 @@ describe('CoursesService', () => {
 				where: { name: ILike(`%${searchDto.name}%`) },
 				order: { createdAt: Order.DESC },
 				take: searchDto.take,
-				skip: searchDto.skip
+				skip: (searchDto.page - 1) * searchDto.take
 			})
 
 			expect(result).toBeDefined()

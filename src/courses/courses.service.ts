@@ -58,12 +58,13 @@ export class CoursesService {
 	): Promise<PaginationDto<Course>> {
 		const { name } = searchDto
 
+		const skip = (searchDto.page - 1) * searchDto.take
+
 		const {
 			order = Order.DESC,
 			take = DEFAULT_PAGINATION_LIMIT,
-			skip = 0,
 			page = 1
-		} = searchDto ?? {}
+		} = searchDto
 
 		if (!name) {
 			throw new BadRequestException('name is required')
