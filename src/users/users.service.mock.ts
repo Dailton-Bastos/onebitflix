@@ -30,6 +30,8 @@ export const UsersServiceMock: Provider<MockType<UsersService>> = {
 export const UserRepositoryMock: Provider<MockType<Repository<User>>> = {
 	provide: getRepositoryToken(User),
 	useValue: {
-		findOne: jest.fn().mockResolvedValue(userMock)
+		findOne: jest.fn().mockResolvedValue(userMock),
+		create: jest.fn().mockResolvedValue(userMock),
+		save: jest.fn().mockResolvedValue(userMock)
 	}
 }
