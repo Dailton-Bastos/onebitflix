@@ -3,23 +3,30 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { plainToInstance } from 'class-transformer'
 import { UserRole } from 'src/common/constants'
+import { HashingService } from 'src/common/hashing/hashing.service'
 import { Repository } from 'typeorm'
 import { CreateUserDto } from './dtos/create-user.dto'
 import { User } from './user.entity'
 import { UsersService } from './users.service'
-import { UserRepositoryMock, userMock } from './users.service.mock'
+import {
+	HashingServiceMock,
+	UserRepositoryMock,
+	userMock
+} from './users.service.mock'
 
 describe('UsersService', () => {
 	let service: UsersService
 	let repository: Repository<User>
+	let hashingService: HashingService
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [UsersService, UserRepositoryMock]
+			providers: [UsersService, UserRepositoryMock, HashingServiceMock]
 		}).compile()
 
 		service = module.get<UsersService>(UsersService)
 		repository = module.get<Repository<User>>(getRepositoryToken(User))
+		hashingService = module.get<HashingService>(HashingService)
 
 		jest.restoreAllMocks()
 	})
@@ -71,10 +78,10 @@ describe('UsersService', () => {
 
 			expect(repository.create).toHaveBeenCalledWith({
 				...dto,
-				role: UserRole.USER
+				role: UserRole.USER,
+				password: userMock.password
 			})
 			expect(repository.save).toHaveBeenCalled()
-
 			expect(result).toEqual(userMock)
 		})
 
@@ -93,6 +100,23 @@ describe('UsersService', () => {
 			await expect(service.create(dto)).rejects.toThrow(ConflictException)
 
 			expect(service.findByEmail).toHaveBeenCalledWith(dto.email)
+		})
+
+		it('should hash the password correctly', async () => {
+			const dto = plainToInstance(CreateUserDto, {
+				firstName: 'Test',
+				lastName: 'Teste',
+				phone: '123456789012345',
+				birth: new Date('1990-01-01'),
+				email: 'test@test.com',
+				password: '1234567890'
+			})
+
+			const result = await service.create(dto)
+
+			expect(hashingService.hash).toHaveBeenCalledWith(dto.password)
+			expect(result.password).not.toEqual(dto.password)
+			expect(result.password).toEqual(userMock.password)
 		})
 	})
 })

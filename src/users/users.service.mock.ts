@@ -1,6 +1,7 @@
 import { Provider } from '@nestjs/common'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { UserRole } from 'src/common/constants'
+import { HashingService } from 'src/common/hashing/hashing.service'
 import { Repository } from 'typeorm'
 import { User } from './user.entity'
 import { UsersService } from './users.service'
@@ -12,7 +13,7 @@ type MockType<T> = {
 export const userMock = {
 	id: 1,
 	email: 'test@test.com',
-	password: 'password',
+	password: 'mocked-hash-password',
 	firstName: 'Test',
 	lastName: 'Test',
 	phone: '1234567890',
@@ -23,7 +24,8 @@ export const userMock = {
 export const UsersServiceMock: Provider<MockType<UsersService>> = {
 	provide: UsersService,
 	useValue: {
-		findByEmail: jest.fn().mockResolvedValue(userMock)
+		findByEmail: jest.fn().mockResolvedValue(userMock),
+		create: jest.fn().mockResolvedValue(userMock)
 	}
 }
 
@@ -33,5 +35,12 @@ export const UserRepositoryMock: Provider<MockType<Repository<User>>> = {
 		findOne: jest.fn().mockResolvedValue(userMock),
 		create: jest.fn().mockResolvedValue(userMock),
 		save: jest.fn().mockResolvedValue(userMock)
+	}
+}
+
+export const HashingServiceMock: Provider<MockType<HashingService>> = {
+	provide: HashingService,
+	useValue: {
+		hash: jest.fn().mockResolvedValue(userMock.password)
 	}
 }
