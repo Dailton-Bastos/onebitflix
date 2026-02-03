@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { AuthModule } from './auth/auth.module'
 import { CategoriesModule } from './categories/categories.module'
 import { adminjsConfig } from './config/adminjs.config'
 import { validate } from './config/env.validation'
@@ -37,7 +38,8 @@ import { UsersModule } from './users/users.module'
 		CategoriesModule,
 		CoursesModule,
 		EpisodesModule,
-		UsersModule
+		UsersModule,
+		AuthModule
 	]
 })
 export class AppModule {}
