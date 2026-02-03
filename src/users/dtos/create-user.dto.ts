@@ -1,11 +1,16 @@
+import { Type } from 'class-transformer'
 import {
 	IsDate,
 	IsEmail,
 	IsNotEmpty,
 	IsString,
+	MaxDate,
 	MaxLength,
+	MinDate,
 	MinLength
 } from 'class-validator'
+
+import 'reflect-metadata'
 
 export class CreateUserDto {
 	@IsString()
@@ -25,7 +30,9 @@ export class CreateUserDto {
 	phone: string
 
 	@IsDate()
-	@IsNotEmpty()
+	@Type(() => Date)
+	@MinDate(new Date('1900-01-01'))
+	@MaxDate(new Date())
 	birth: Date
 
 	@IsEmail()

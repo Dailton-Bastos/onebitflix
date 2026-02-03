@@ -228,7 +228,7 @@ describe('CreateUserDto', () => {
 				firstName: 'Test',
 				lastName: 'Teste',
 				phone: '123456789012345',
-				birth: '1990-01-01',
+				birth: 'invalid date',
 				email: 'test@test.com',
 				password: 'password'
 			})
@@ -240,21 +240,38 @@ describe('CreateUserDto', () => {
 			expect(errors[0].constraints?.isDate).toBeTruthy()
 		})
 
-		it('should be not empty', async () => {
+		it('should be a date before the current date', async () => {
 			const dto = plainToInstance(CreateUserDto, {
 				firstName: 'Test',
 				lastName: 'Teste',
 				phone: '123456789012345',
-				birth: '',
+				birth: new Date().setFullYear(new Date().getFullYear() + 1),
 				email: 'test@test.com',
 				password: 'password'
 			})
-			const errors = await validate(dto)
 
+			const errors = await validate(dto)
 			expect(errors.length).toBe(1)
 			expect(errors[0].property).toBe('birth')
 			expect(errors[0].constraints).toBeDefined()
-			expect(errors[0].constraints?.isNotEmpty).toBeTruthy()
+			expect(errors[0].constraints?.maxDate).toBeTruthy()
+		})
+
+		it('should be a date after the 1900-01-01', async () => {
+			const dto = plainToInstance(CreateUserDto, {
+				firstName: 'Test',
+				lastName: 'Teste',
+				phone: '123456789012345',
+				birth: '1899-12-31',
+				email: 'test@test.com',
+				password: 'password'
+			})
+
+			const errors = await validate(dto)
+			expect(errors.length).toBe(1)
+			expect(errors[0].property).toBe('birth')
+			expect(errors[0].constraints).toBeDefined()
+			expect(errors[0].constraints?.minDate).toBeTruthy()
 		})
 
 		it('should pass validation if birth is valid', async () => {
@@ -262,7 +279,7 @@ describe('CreateUserDto', () => {
 				firstName: 'Test',
 				lastName: 'Teste',
 				phone: '123456789012345',
-				birth: new Date('1990-01-01'),
+				birth: '1990-01-01',
 				email: 'test@test.com',
 				password: 'password'
 			})
