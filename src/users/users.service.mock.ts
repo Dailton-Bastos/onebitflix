@@ -13,7 +13,6 @@ type MockType<T> = {
 export const userMock = {
 	id: 1,
 	email: 'test@test.com',
-	password: 'mocked-hash-password',
 	firstName: 'Test',
 	lastName: 'Test',
 	phone: '1234567890',

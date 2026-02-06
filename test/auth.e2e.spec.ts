@@ -70,5 +70,23 @@ describe('Auth (e2e)', () => {
 			expect(response.body.message).toBeDefined()
 			expect(response.body.message).toContain('email already exists')
 		})
+
+		it('should return a new user without password in the response', async () => {
+			const dto = plainToInstance(CreateUserDto, {
+				firstName: 'Test',
+				lastName: 'Teste',
+				phone: '123456789012345',
+				birth: '1990-01-01',
+				email: 'test@test.com',
+				password: '1234567890'
+			})
+
+			const response = await request(app.getHttpServer())
+				.post('/api/auth/register')
+				.send(dto)
+				.expect(HttpStatus.CREATED)
+
+			expect(response.body.password).toBeUndefined()
+		})
 	})
 })

@@ -42,5 +42,20 @@ describe('AuthController', () => {
 
 			expect(result.id).toEqual(userMock.id)
 		})
+
+		it('should return a new user without password', async () => {
+			const dto = plainToInstance(CreateUserDto, {
+				firstName: 'Test',
+				lastName: 'Teste',
+				phone: '123456789012345',
+				birth: '1990-01-01',
+				email: 'test@test.com',
+				password: '1234567890'
+			})
+
+			const result = await controller.register(dto)
+
+			expect(result.password).toBeUndefined()
+		})
 	})
 })
