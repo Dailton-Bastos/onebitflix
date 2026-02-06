@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm'
+import { AuthModule } from 'src/auth/auth.module'
 import { CategoriesModule } from 'src/categories/categories.module'
 import { Category } from 'src/categories/category.entity'
 import { appConfig } from 'src/config/app.config'
@@ -35,7 +36,8 @@ global.beforeEach(async () => {
 			HealthModule,
 			CategoriesModule,
 			CoursesModule,
-			EpisodesModule
+			EpisodesModule,
+			AuthModule
 		]
 	}).compile()
 
