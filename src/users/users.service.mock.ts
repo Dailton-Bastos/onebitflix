@@ -40,6 +40,7 @@ export const UserRepositoryMock: Provider<MockType<Repository<User>>> = {
 export const HashingServiceMock: Provider<MockType<HashingService>> = {
 	provide: HashingService,
 	useValue: {
-		hash: jest.fn().mockResolvedValue(userMock.password)
+		hash: jest.fn().mockResolvedValue(userMock.password),
+		verify: jest.fn().mockResolvedValue(true)
 	}
 }
