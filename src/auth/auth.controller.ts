@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	HttpCode,
+	HttpStatus,
+	Post,
+	UseGuards
+} from '@nestjs/common'
 import { CurrentUser } from 'src/common/decorators'
 import { Serialize } from 'src/common/interceptors'
 import { CreateUserDto, UserDto } from 'src/users/dtos'
@@ -18,6 +25,7 @@ export class AuthController {
 
 	@Post('login')
 	@UseGuards(LocalAuthGuard)
+	@HttpCode(HttpStatus.OK)
 	async login(@CurrentUser() user: User) {
 		return this.authService.login(user)
 	}

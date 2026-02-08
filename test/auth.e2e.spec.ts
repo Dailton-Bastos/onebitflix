@@ -89,4 +89,63 @@ describe('Auth (e2e)', () => {
 			expect(response.body.password).toBeUndefined()
 		})
 	})
+
+	describe('POST /api/auth/login', () => {
+		const dto = plainToInstance(CreateUserDto, {
+			firstName: 'Test',
+			lastName: 'Teste',
+			phone: '123456789012345',
+			birth: '1990-01-01',
+			email: 'test@test.com',
+			password: '1234567890'
+		})
+
+		it('should login a user correctly', async () => {
+			await request(app.getHttpServer())
+				.post('/api/auth/register')
+				.send(dto)
+				.expect(HttpStatus.CREATED)
+
+			const response = await request(app.getHttpServer())
+				.post('/api/auth/login')
+				.send({
+					email: dto.email,
+					password: dto.password
+				})
+				.expect(HttpStatus.OK)
+
+			expect(response.body.access_token).toBeDefined()
+		})
+
+		it('should return a unauthorized error if the user password is incorrect', async () => {
+			await request(app.getHttpServer())
+				.post('/api/auth/register')
+				.send(dto)
+				.expect(HttpStatus.CREATED)
+
+			const response = await request(app.getHttpServer())
+				.post('/api/auth/login')
+				.send({
+					email: dto.email,
+					password: 'incorrect password'
+				})
+				.expect(HttpStatus.UNAUTHORIZED)
+
+			expect(response.body.message).toBeDefined()
+			expect(response.body.message).toContain('invalid credentials')
+		})
+
+		it('should return a unauthorized error if the user not exists', async () => {
+			const response = await request(app.getHttpServer())
+				.post('/api/auth/login')
+				.send({
+					email: 'incorrect@test.com',
+					password: '1234567890'
+				})
+				.expect(HttpStatus.UNAUTHORIZED)
+
+			expect(response.body.message).toBeDefined()
+			expect(response.body.message).toContain('Unauthorized')
+		})
+	})
 })
