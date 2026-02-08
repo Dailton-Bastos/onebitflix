@@ -58,4 +58,16 @@ describe('AuthController', () => {
 			expect(result.password).toBeUndefined()
 		})
 	})
+
+	describe('login', () => {
+		it('should login a user correctly', async () => {
+			const result = await controller.login(userMock)
+
+			expect(service.login).toHaveBeenCalledWith(userMock)
+
+			expect(result).toEqual({
+				access_token: expect.any(String)
+			})
+		})
+	})
 })

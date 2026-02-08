@@ -4,7 +4,9 @@ import {
 	InternalServerErrorException,
 	UnauthorizedException
 } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { HashingService } from 'src/common/hashing/hashing.service'
+import { TokenPayload } from 'src/common/interfaces'
 import { CreateUserDto } from 'src/users/dtos'
 import { User } from 'src/users/user.entity'
 import { UsersService } from 'src/users/users.service'
@@ -13,11 +15,25 @@ import { UsersService } from 'src/users/users.service'
 export class AuthService {
 	constructor(
 		private readonly usersService: UsersService,
-		private readonly hashingService: HashingService
+		private readonly hashingService: HashingService,
+		private readonly jwtService: JwtService
 	) {}
 
 	async register(createUserDto: CreateUserDto): Promise<User> {
 		return this.usersService.create(createUserDto)
+	}
+
+	async login(user: User) {
+		const payload: TokenPayload = {
+			sub: user.id,
+			email: user.email
+		}
+
+		const token = this.jwtService.sign<TokenPayload>(payload)
+
+		return {
+			access_token: token
+		}
 	}
 
 	async validateUser(email: string, password: string): Promise<User | null> {

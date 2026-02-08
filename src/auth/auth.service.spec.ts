@@ -3,10 +3,12 @@ import {
 	InternalServerErrorException,
 	UnauthorizedException
 } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { plainToInstance } from 'class-transformer'
 import { HashingService } from 'src/common/hashing/hashing.service'
+import { TokenPayload } from 'src/common/interfaces'
 import { CreateUserDto } from 'src/users/dtos'
 import { User } from 'src/users/user.entity'
 import { UsersService } from 'src/users/users.service'
@@ -18,12 +20,14 @@ import {
 } from 'src/users/users.service.mock'
 import { Repository } from 'typeorm'
 import { AuthService } from './auth.service'
+import { JwtServiceMock } from './auth.service.mock'
 
 describe('AuthService', () => {
 	let service: AuthService
 	let usersService: UsersService
 	let userRepository: Repository<User>
 	let hashingService: HashingService
+	let jwtService: JwtService
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -31,7 +35,8 @@ describe('AuthService', () => {
 				AuthService,
 				UsersServiceMock,
 				UserRepositoryMock,
-				HashingServiceMock
+				HashingServiceMock,
+				JwtServiceMock
 			]
 		}).compile()
 
@@ -39,6 +44,7 @@ describe('AuthService', () => {
 		usersService = module.get<UsersService>(UsersService)
 		userRepository = module.get<Repository<User>>(getRepositoryToken(User))
 		hashingService = module.get<HashingService>(HashingService)
+		jwtService = module.get<JwtService>(JwtService)
 
 		jest.restoreAllMocks()
 		jest.clearAllMocks()
@@ -48,6 +54,8 @@ describe('AuthService', () => {
 		expect(service).toBeDefined()
 		expect(usersService).toBeDefined()
 		expect(userRepository).toBeDefined()
+		expect(hashingService).toBeDefined()
+		expect(jwtService).toBeDefined()
 	})
 
 	describe('register', () => {
@@ -145,6 +153,23 @@ describe('AuthService', () => {
 			await expect(
 				service.validateUser(userMock.email, '1234567890')
 			).rejects.toThrow(InternalServerErrorException)
+		})
+	})
+
+	describe('login', () => {
+		it('should login a user correctly', async () => {
+			const payload: TokenPayload = {
+				sub: userMock.id,
+				email: userMock.email
+			}
+
+			const result = await service.login(userMock)
+
+			expect(jwtService.sign).toHaveBeenCalledWith(payload)
+
+			expect(result).toEqual({
+				access_token: expect.any(String)
+			})
 		})
 	})
 })
