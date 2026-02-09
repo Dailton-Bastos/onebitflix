@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { plainToInstance } from 'class-transformer'
+import type { Response } from 'express'
 import { CreateUserDto } from 'src/users/dtos'
 import { UsersServiceMock, userMock } from 'src/users/users.service.mock'
 import { AuthController } from './auth.controller'
@@ -61,9 +62,13 @@ describe('AuthController', () => {
 
 	describe('login', () => {
 		it('should login a user correctly', async () => {
-			const result = await controller.login(userMock)
+			const response = {
+				cookie: jest.fn()
+			} as unknown as Response
 
-			expect(service.login).toHaveBeenCalledWith(userMock)
+			const result = await controller.login(userMock, response)
+
+			expect(service.login).toHaveBeenCalledWith(userMock, response)
 
 			expect(result).toEqual({
 				access_token: expect.any(String)

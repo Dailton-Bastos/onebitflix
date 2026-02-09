@@ -3,12 +3,16 @@ import {
 	InternalServerErrorException,
 	UnauthorizedException
 } from '@nestjs/common'
+import { ConfigType } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { plainToInstance } from 'class-transformer'
+import type { Response } from 'express'
+import { jwtConstants } from 'src/common/constants'
 import { HashingService } from 'src/common/hashing/hashing.service'
 import { TokenPayload } from 'src/common/interfaces'
+import cookiesConfig from 'src/config/cookies.config'
 import { CreateUserDto } from 'src/users/dtos'
 import { User } from 'src/users/user.entity'
 import { UsersService } from 'src/users/users.service'
@@ -28,6 +32,7 @@ describe('AuthService', () => {
 	let userRepository: Repository<User>
 	let hashingService: HashingService
 	let jwtService: JwtService
+	let config: ConfigType<typeof cookiesConfig>
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -36,7 +41,18 @@ describe('AuthService', () => {
 				UsersServiceMock,
 				UserRepositoryMock,
 				HashingServiceMock,
-				JwtServiceMock
+				JwtServiceMock,
+				{
+					provide: cookiesConfig.KEY,
+					useValue: {
+						accessToken: {
+							name: jwtConstants.accessTokenName,
+							options: {
+								httpOnly: true
+							}
+						}
+					}
+				}
 			]
 		}).compile()
 
@@ -45,7 +61,7 @@ describe('AuthService', () => {
 		userRepository = module.get<Repository<User>>(getRepositoryToken(User))
 		hashingService = module.get<HashingService>(HashingService)
 		jwtService = module.get<JwtService>(JwtService)
-
+		config = module.get<ConfigType<typeof cookiesConfig>>(cookiesConfig.KEY)
 		jest.restoreAllMocks()
 		jest.clearAllMocks()
 	})
@@ -56,6 +72,7 @@ describe('AuthService', () => {
 		expect(userRepository).toBeDefined()
 		expect(hashingService).toBeDefined()
 		expect(jwtService).toBeDefined()
+		expect(config).toBeDefined()
 	})
 
 	describe('register', () => {
@@ -163,9 +180,21 @@ describe('AuthService', () => {
 				email: userMock.email
 			}
 
-			const result = await service.login(userMock)
+			const response = {
+				cookie: jest.fn()
+			} as unknown as Response
+
+			const result = await service.login(userMock, response)
 
 			expect(jwtService.sign).toHaveBeenCalledWith(payload)
+
+			expect(response.cookie).toHaveBeenCalledWith(
+				config.accessToken.name,
+				expect.any(String),
+				{
+					...config.accessToken.options
+				}
+			)
 
 			expect(result).toEqual({
 				access_token: expect.any(String)

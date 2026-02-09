@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -6,6 +7,7 @@ import {
 	Argon2HashingService,
 	HashingService
 } from 'src/common/hashing/hashing.service'
+import cookiesConfig from 'src/config/cookies.config'
 import jwtConfig from 'src/config/jwt.config'
 import { User } from 'src/users/user.entity'
 import { UsersService } from 'src/users/users.service'
@@ -17,7 +19,8 @@ import { LocalStrategy } from './strategies/local.strategy'
 	imports: [
 		TypeOrmModule.forFeature([User]),
 		PassportModule,
-		JwtModule.registerAsync(jwtConfig.asProvider())
+		JwtModule.registerAsync(jwtConfig.asProvider()),
+		ConfigModule.forFeature(cookiesConfig)
 	],
 	providers: [
 		AuthService,

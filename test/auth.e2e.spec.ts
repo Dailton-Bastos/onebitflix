@@ -1,5 +1,6 @@
 import { HttpStatus } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
+import { jwtConstants } from 'src/common/constants'
 import { CreateUserDto } from 'src/users/dtos'
 import request from 'supertest'
 import { app } from './setup'
@@ -146,6 +147,27 @@ describe('Auth (e2e)', () => {
 
 			expect(response.body.message).toBeDefined()
 			expect(response.body.message).toContain('Unauthorized')
+		})
+
+		it('should set the access token in a cookie', async () => {
+			await request(app.getHttpServer())
+				.post('/api/auth/register')
+				.send(dto)
+				.expect(HttpStatus.CREATED)
+
+			const response = await request(app.getHttpServer())
+				.post('/api/auth/login')
+				.send({
+					email: dto.email,
+					password: dto.password
+				})
+				.expect(HttpStatus.OK)
+
+			expect(response.headers['set-cookie']).toBeDefined()
+			expect(response.headers['set-cookie'][0]).toContain(
+				jwtConstants.accessTokenName
+			)
+			expect(response.headers['set-cookie'][0]).toContain('HttpOnly')
 		})
 	})
 })

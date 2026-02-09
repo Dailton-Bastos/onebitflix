@@ -4,8 +4,10 @@ import {
 	HttpCode,
 	HttpStatus,
 	Post,
+	Res,
 	UseGuards
 } from '@nestjs/common'
+import type { Response } from 'express'
 import { CurrentUser } from 'src/common/decorators'
 import { Serialize } from 'src/common/interceptors'
 import { CreateUserDto, UserDto } from 'src/users/dtos'
@@ -26,7 +28,10 @@ export class AuthController {
 	@Post('login')
 	@UseGuards(LocalAuthGuard)
 	@HttpCode(HttpStatus.OK)
-	async login(@CurrentUser() user: User) {
-		return this.authService.login(user)
+	async login(
+		@CurrentUser() user: User,
+		@Res({ passthrough: true }) response: Response
+	) {
+		return this.authService.login(user, response)
 	}
 }
