@@ -107,6 +107,10 @@ class EnvironmentVariables {
 	@IsNumber()
 	@IsNotEmpty()
 	JWT_EXPIRES_IN: number
+
+	@IsString()
+	@IsNotEmpty()
+	COOKIES_SECRET: string
 }
 
 export const validate = (config: Record<string, unknown>) => {

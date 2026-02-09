@@ -4,6 +4,7 @@ import { ServeStaticModule } from '@nestjs/serve-static'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
 import { CategoriesModule } from './categories/categories.module'
+import { CookiesModule } from './common/cookies/cookies.module'
 import { adminjsConfig } from './config/adminjs.config'
 import { validate } from './config/env.validation'
 import { serveStaticConfig } from './config/serve-static.config'
@@ -34,6 +35,7 @@ import { UsersModule } from './users/users.module'
 				return AdminModule.createAdminAsync(adminjsConfig.asProvider())
 			}
 		),
+		CookiesModule,
 		HealthModule,
 		CategoriesModule,
 		CoursesModule,
