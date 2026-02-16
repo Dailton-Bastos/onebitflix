@@ -64,6 +64,13 @@ export class AuthService {
 		}
 	}
 
+	async logout(user: User, response: Response): Promise<void> {
+		await this.revokeRefreshToken(user.id)
+
+		response.clearCookie(this.config.accessToken.name)
+		response.clearCookie(this.config.refreshToken.name)
+	}
+
 	async validateUser(email: string, password: string): Promise<User | null> {
 		const user = await this.usersService.findByEmail(email)
 

@@ -25,7 +25,8 @@ export const AuthServiceMock: Provider<MockType<AuthService>> = {
 		login: jest.fn().mockReturnValue({
 			access_token: 'access-token',
 			refresh_token: 'refresh-token'
-		})
+		}),
+		logout: jest.fn().mockResolvedValue(undefined)
 	}
 }
 

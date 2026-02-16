@@ -407,4 +407,24 @@ describe('AuthService', () => {
 			)
 		})
 	})
+
+	describe('logout', () => {
+		it('should logout a user correctly', async () => {
+			const response = {
+				clearCookie: jest.fn()
+			} as unknown as Response
+
+			const result = await service.logout(userMock, response)
+
+			expect(refreshTokenRepository.update).toHaveBeenCalledWith(
+				{ user: { id: userMock.id } },
+				{ isRevoked: true }
+			)
+			expect(response.clearCookie).toHaveBeenCalledWith(config.accessToken.name)
+			expect(response.clearCookie).toHaveBeenCalledWith(
+				config.refreshToken.name
+			)
+			expect(result).toBeUndefined()
+		})
+	})
 })

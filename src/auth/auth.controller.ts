@@ -13,6 +13,7 @@ import { Serialize } from 'src/common/interceptors'
 import { CreateUserDto, UserDto } from 'src/users/dtos'
 import { User } from 'src/users/user.entity'
 import { AuthService } from './auth.service'
+import { JwtLogoutAuthGuard } from './guards/jwt-logout-auth.guard'
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 
@@ -44,5 +45,15 @@ export class AuthController {
 		@Res({ passthrough: true }) response: Response
 	) {
 		return this.authService.login(user, response)
+	}
+
+	@Post('logout')
+	@UseGuards(JwtLogoutAuthGuard)
+	@HttpCode(HttpStatus.OK)
+	async logout(
+		@CurrentUser() user: User,
+		@Res({ passthrough: true }) response: Response
+	) {
+		return this.authService.logout(user, response)
 	}
 }

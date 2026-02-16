@@ -93,4 +93,18 @@ describe('AuthController', () => {
 			})
 		})
 	})
+
+	describe('logout', () => {
+		it('should logout a user correctly', async () => {
+			const response = {
+				clearCookie: jest.fn()
+			} as unknown as Response
+
+			const result = await controller.logout(userMock, response)
+
+			expect(service.logout).toHaveBeenCalledWith(userMock, response)
+
+			expect(result).toBeUndefined()
+		})
+	})
 })

@@ -14,6 +14,7 @@ import { UsersService } from 'src/users/users.service'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { RefreshToken } from './refresh-token.entity'
+import { JwtLogoutStrategy } from './strategies/jwt-logout.strategy'
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy'
 import { LocalStrategy } from './strategies/local.strategy'
 
@@ -29,6 +30,7 @@ import { LocalStrategy } from './strategies/local.strategy'
 		UsersService,
 		LocalStrategy,
 		JwtRefreshStrategy,
+		JwtLogoutStrategy,
 		{
 			provide: HashingService,
 			useClass: Argon2HashingService

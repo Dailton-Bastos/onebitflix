@@ -192,4 +192,42 @@ describe('Auth (e2e)', () => {
 			expect(response.headers['set-cookie'][1]).toContain('HttpOnly')
 		})
 	})
+
+	describe('POST /api/auth/logout', () => {
+		it('should logout a user correctly', async () => {
+			const dto = plainToInstance(CreateUserDto, {
+				firstName: 'Test',
+				lastName: 'Teste',
+				phone: '123456789012345',
+				birth: '1990-01-01',
+				email: 'test@test.com',
+				password: '1234567890'
+			})
+
+			await request(app.getHttpServer())
+				.post('/api/auth/register')
+				.send(dto)
+				.expect(HttpStatus.CREATED)
+
+			const loginResponse = await request(app.getHttpServer())
+				.post('/api/auth/login')
+				.send({
+					email: dto.email,
+					password: dto.password
+				})
+				.expect(HttpStatus.OK)
+
+			const logoutResponse = await request(app.getHttpServer())
+				.post('/api/auth/logout')
+				.set('Authorization', `Bearer ${loginResponse.body.access_token}`)
+				.expect(HttpStatus.OK)
+
+			expect(logoutResponse.headers['set-cookie'][0]).toContain(
+				'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+			)
+			expect(logoutResponse.headers['set-cookie'][1]).toContain(
+				'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+			)
+		})
+	})
 })
