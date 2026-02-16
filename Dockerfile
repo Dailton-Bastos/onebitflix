@@ -72,7 +72,9 @@ FROM base AS migrations
 
 WORKDIR /usr/src/app
 
-COPY src ./src
+COPY src/migrations ./src/migrations
+COPY src/config/data-source.config.ts ./src/config/data-source.config.ts
+COPY src/config/dotenv.config.ts ./src/config/dotenv.config.ts
 COPY package.json ./package.json
 COPY tsconfig.json ./tsconfig.json
 

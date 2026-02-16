@@ -71,7 +71,25 @@ describe('AuthController', () => {
 			expect(service.login).toHaveBeenCalledWith(userMock, response)
 
 			expect(result).toEqual({
-				access_token: expect.any(String)
+				access_token: expect.any(String),
+				refresh_token: expect.any(String)
+			})
+		})
+	})
+
+	describe('refresh', () => {
+		it('should refresh a user correctly', async () => {
+			const response = {
+				cookie: jest.fn()
+			} as unknown as Response
+
+			const result = await controller.refresh(userMock, response)
+
+			expect(service.login).toHaveBeenCalledWith(userMock, response)
+
+			expect(result).toEqual({
+				access_token: expect.any(String),
+				refresh_token: expect.any(String)
 			})
 		})
 	})

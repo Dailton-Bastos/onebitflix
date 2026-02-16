@@ -22,9 +22,10 @@ import {
 	UsersServiceMock,
 	userMock
 } from 'src/users/users.service.mock'
-import { Repository } from 'typeorm'
+import { MoreThan, Repository } from 'typeorm'
 import { AuthService } from './auth.service'
-import { JwtServiceMock } from './auth.service.mock'
+import { JwtServiceMock, RefreshTokenRepositoryMock } from './auth.service.mock'
+import { RefreshToken } from './refresh-token.entity'
 
 describe('AuthService', () => {
 	let service: AuthService
@@ -32,6 +33,7 @@ describe('AuthService', () => {
 	let userRepository: Repository<User>
 	let hashingService: HashingService
 	let jwtService: JwtService
+	let refreshTokenRepository: Repository<RefreshToken>
 	let config: ConfigType<typeof cookiesConfig>
 
 	beforeEach(async () => {
@@ -42,11 +44,18 @@ describe('AuthService', () => {
 				UserRepositoryMock,
 				HashingServiceMock,
 				JwtServiceMock,
+				RefreshTokenRepositoryMock,
 				{
 					provide: cookiesConfig.KEY,
 					useValue: {
 						accessToken: {
 							name: jwtConstants.accessTokenName,
+							options: {
+								httpOnly: true
+							}
+						},
+						refreshToken: {
+							name: jwtConstants.refreshTokenName,
 							options: {
 								httpOnly: true
 							}
@@ -61,6 +70,9 @@ describe('AuthService', () => {
 		userRepository = module.get<Repository<User>>(getRepositoryToken(User))
 		hashingService = module.get<HashingService>(HashingService)
 		jwtService = module.get<JwtService>(JwtService)
+		refreshTokenRepository = module.get<Repository<RefreshToken>>(
+			getRepositoryToken(RefreshToken)
+		)
 		config = module.get<ConfigType<typeof cookiesConfig>>(cookiesConfig.KEY)
 		jest.restoreAllMocks()
 		jest.clearAllMocks()
@@ -72,6 +84,7 @@ describe('AuthService', () => {
 		expect(userRepository).toBeDefined()
 		expect(hashingService).toBeDefined()
 		expect(jwtService).toBeDefined()
+		expect(refreshTokenRepository).toBeDefined()
 		expect(config).toBeDefined()
 	})
 
@@ -174,20 +187,19 @@ describe('AuthService', () => {
 	})
 
 	describe('login', () => {
-		it('should login a user correctly', async () => {
+		const response = {
+			cookie: jest.fn()
+		} as unknown as Response
+
+		it('should generate access token correctly', async () => {
 			const payload: TokenPayload = {
 				sub: userMock.id,
 				email: userMock.email
 			}
 
-			const response = {
-				cookie: jest.fn()
-			} as unknown as Response
-
 			const result = await service.login(userMock, response)
 
 			expect(jwtService.sign).toHaveBeenCalledWith(payload)
-
 			expect(response.cookie).toHaveBeenCalledWith(
 				config.accessToken.name,
 				expect.any(String),
@@ -196,9 +208,150 @@ describe('AuthService', () => {
 				}
 			)
 
-			expect(result).toEqual({
-				access_token: expect.any(String)
+			expect(result.access_token).toBeDefined()
+			expect(result.access_token).toBe('mock-token')
+		})
+
+		it('should generate refresh token correctly', async () => {
+			const payload: TokenPayload = {
+				sub: userMock.id,
+				email: userMock.email
+			}
+
+			const result = await service.login(userMock, response)
+
+			jest
+				.spyOn(hashingService, 'hash')
+				.mockResolvedValue('hashed-refresh-token')
+
+			expect(refreshTokenRepository.update).toHaveBeenCalledWith(
+				{ user: { id: userMock.id } },
+				{ isRevoked: true }
+			)
+			expect(jwtService.sign).toHaveBeenCalledWith(payload, {
+				expiresIn: jwtConstants.refreshExpiresIn,
+				secret: jwtConstants.refreshSecret
 			})
+			expect(hashingService.hash).toHaveBeenCalledWith('mock-token')
+			expect(refreshTokenRepository.create).toHaveBeenCalled()
+			expect(refreshTokenRepository.save).toHaveBeenCalled()
+
+			expect(result.refresh_token).toBeDefined()
+			expect(result.refresh_token).toBe('mock-token')
+		})
+
+		it('should login a user correctly', async () => {
+			const result = await service.login(userMock, response)
+
+			expect(result).toEqual({
+				access_token: expect.any(String),
+				refresh_token: expect.any(String)
+			})
+		})
+	})
+
+	describe('verifyRefreshToken', () => {
+		it('should verify a refresh token correctly', async () => {
+			const token = 'mock-token'
+			const userId = userMock.id
+
+			const refreshToken = {
+				user: userMock,
+				token: 'mock-token'
+			} as RefreshToken
+
+			jest
+				.spyOn(refreshTokenRepository, 'findOne')
+				.mockResolvedValue(refreshToken)
+
+			jest.spyOn(hashingService, 'verify').mockResolvedValue(true)
+
+			const result = await service.verifyRefreshToken(token, userId)
+
+			expect(refreshTokenRepository.findOne).toHaveBeenCalledWith({
+				where: {
+					user: { id: userId },
+					isRevoked: false,
+					expiresAt: MoreThan(expect.any(Date))
+				},
+				select: {
+					user: true
+				},
+				relations: {
+					user: true
+				}
+			})
+
+			expect(hashingService.verify).toHaveBeenCalledWith(
+				token,
+				refreshToken.token
+			)
+			expect(result).toBe(userMock)
+		})
+
+		it('should throw an error if the refresh token is not found', async () => {
+			const token = 'mock-token'
+			const userId = userMock.id
+
+			jest.spyOn(refreshTokenRepository, 'findOne').mockResolvedValue(null)
+
+			await expect(service.verifyRefreshToken(token, userId)).rejects.toThrow(
+				UnauthorizedException
+			)
+
+			expect(refreshTokenRepository.findOne).toHaveBeenCalled()
+		})
+
+		it('should throw an error if the refresh token does not match', async () => {
+			const token = 'mock-token'
+			const userId = userMock.id
+
+			jest.spyOn(refreshTokenRepository, 'findOne').mockResolvedValue({
+				user: userMock,
+				token: 'mock-token'
+			} as RefreshToken)
+
+			jest.spyOn(hashingService, 'verify').mockResolvedValue(false)
+
+			await expect(service.verifyRefreshToken(token, userId)).rejects.toThrow(
+				UnauthorizedException
+			)
+		})
+
+		it('should throw an error if the refresh token is not hashed', async () => {
+			const token = 'mock-token'
+			const userId = userMock.id
+
+			jest.spyOn(refreshTokenRepository, 'findOne').mockResolvedValue({
+				user: userMock,
+				token: 'mock-token'
+			} as RefreshToken)
+
+			jest.spyOn(hashingService, 'verify').mockImplementation(() => {
+				throw new Error('Invalid refresh token')
+			})
+
+			await expect(service.verifyRefreshToken(token, userId)).rejects.toThrow(
+				BadRequestException
+			)
+		})
+
+		it('should throw an error if an error occurs while verifying the refresh token', async () => {
+			const token = 'mock-token'
+			const userId = userMock.id
+
+			jest.spyOn(refreshTokenRepository, 'findOne').mockResolvedValue({
+				user: userMock,
+				token: 'mock-token'
+			} as RefreshToken)
+
+			jest.spyOn(hashingService, 'verify').mockImplementation(() => {
+				throw new Error('an error occurred while verifying the refresh token')
+			})
+
+			await expect(service.verifyRefreshToken(token, userId)).rejects.toThrow(
+				InternalServerErrorException
+			)
 		})
 	})
 })

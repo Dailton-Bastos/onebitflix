@@ -5,5 +5,10 @@ export const jwtConstants = {
 	issuer: configService.getOrThrow<string>('JWT_ISSUER'),
 	audience: configService.getOrThrow<string>('JWT_AUDIENCE'),
 	expiresIn: Number(configService.getOrThrow<number>('JWT_EXPIRES_IN')),
-	accessTokenName: 'access_token'
+	refreshExpiresIn: Number(
+		configService.getOrThrow<number>('JWT_REFRESH_EXPIRES_IN')
+	),
+	refreshSecret: configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+	accessTokenName: 'access_token',
+	refreshTokenName: 'refresh_token'
 }

@@ -7,13 +7,18 @@ import {
 } from '@nestjs/common'
 import type { ConfigType } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { InjectRepository } from '@nestjs/typeorm'
 import type { Response } from 'express'
+import { jwtConstants } from 'src/common/constants'
 import { HashingService } from 'src/common/hashing/hashing.service'
 import { TokenPayload } from 'src/common/interfaces'
+import { addMilliseconds } from 'src/common/utils'
 import cookiesConfig from 'src/config/cookies.config'
 import { CreateUserDto } from 'src/users/dtos'
 import { User } from 'src/users/user.entity'
 import { UsersService } from 'src/users/users.service'
+import { MoreThan, Repository } from 'typeorm'
+import { RefreshToken } from './refresh-token.entity'
 
 @Injectable()
 export class AuthService {
@@ -22,7 +27,9 @@ export class AuthService {
 		private readonly hashingService: HashingService,
 		private readonly jwtService: JwtService,
 		@Inject(cookiesConfig.KEY)
-		private readonly config: ConfigType<typeof cookiesConfig>
+		private readonly config: ConfigType<typeof cookiesConfig>,
+		@InjectRepository(RefreshToken)
+		private readonly refreshTokenRepository: Repository<RefreshToken>
 	) {}
 
 	async register(createUserDto: CreateUserDto): Promise<User> {
@@ -37,12 +44,19 @@ export class AuthService {
 
 		const token = this.jwtService.sign<TokenPayload>(payload)
 
+		const refreshToken = await this.createRefreshToken(payload)
+
 		response.cookie(this.config.accessToken.name, token, {
 			...this.config.accessToken.options
 		})
 
+		response.cookie(this.config.refreshToken.name, refreshToken, {
+			...this.config.refreshToken.options
+		})
+
 		return {
-			access_token: token
+			access_token: token,
+			refresh_token: refreshToken
 		}
 	}
 
@@ -68,5 +82,78 @@ export class AuthService {
 		if (!passwordMatch) throw new UnauthorizedException('invalid credentials')
 
 		return user
+	}
+
+	async verifyRefreshToken(token: string, userId: number): Promise<User> {
+		const existingRefreshToken = await this.refreshTokenRepository.findOne({
+			where: {
+				user: { id: userId },
+				isRevoked: false,
+				expiresAt: MoreThan(new Date())
+			},
+			select: {
+				user: true
+			},
+			relations: {
+				user: true
+			}
+		})
+
+		if (!existingRefreshToken)
+			throw new UnauthorizedException('invalid refresh token')
+
+		let isTokenValid: boolean = false
+
+		try {
+			isTokenValid = await this.hashingService.verify(
+				token,
+				existingRefreshToken.token
+			)
+		} catch (error) {
+			if (error?.message.includes('Invalid refresh token')) {
+				throw new BadRequestException('invalid refresh token')
+			}
+
+			throw new InternalServerErrorException(
+				'an error occurred while verifying the refresh token'
+			)
+		}
+
+		if (!isTokenValid) throw new UnauthorizedException('invalid refresh token')
+
+		return existingRefreshToken.user
+	}
+
+	async createRefreshToken(payload: TokenPayload): Promise<string> {
+		await this.revokeRefreshToken(payload.sub)
+
+		const refreshToken = this.jwtService.sign<TokenPayload>(payload, {
+			expiresIn: jwtConstants.refreshExpiresIn,
+			secret: jwtConstants.refreshSecret
+		})
+
+		const hashedRefreshToken = await this.hashingService.hash(refreshToken)
+
+		const expiresAt = addMilliseconds(
+			new Date(),
+			jwtConstants.refreshExpiresIn * 1000
+		)
+
+		const data = this.refreshTokenRepository.create({
+			user: { id: payload.sub },
+			token: hashedRefreshToken,
+			expiresAt
+		})
+
+		await this.refreshTokenRepository.save(data)
+
+		return refreshToken
+	}
+
+	private async revokeRefreshToken(userId: number): Promise<void> {
+		await this.refreshTokenRepository.update(
+			{ user: { id: userId } },
+			{ isRevoked: true }
+		)
 	}
 }

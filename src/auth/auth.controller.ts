@@ -13,6 +13,7 @@ import { Serialize } from 'src/common/interceptors'
 import { CreateUserDto, UserDto } from 'src/users/dtos'
 import { User } from 'src/users/user.entity'
 import { AuthService } from './auth.service'
+import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 
 @Controller('auth')
@@ -29,6 +30,16 @@ export class AuthController {
 	@UseGuards(LocalAuthGuard)
 	@HttpCode(HttpStatus.OK)
 	async login(
+		@CurrentUser() user: User,
+		@Res({ passthrough: true }) response: Response
+	) {
+		return this.authService.login(user, response)
+	}
+
+	@Post('refresh')
+	@UseGuards(JwtRefreshAuthGuard)
+	@HttpCode(HttpStatus.OK)
+	async refresh(
 		@CurrentUser() user: User,
 		@Res({ passthrough: true }) response: Response
 	) {

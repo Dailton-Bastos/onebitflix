@@ -1,9 +1,11 @@
+import { RefreshToken } from 'src/auth/refresh-token.entity'
 import {
 	BaseEntity,
 	Column,
 	CreateDateColumn,
 	Entity,
 	Index,
+	OneToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
@@ -45,4 +47,10 @@ export class User extends BaseEntity {
 
 	@UpdateDateColumn({ name: 'updated_at' })
 	updatedAt: Date
+
+	@OneToMany(
+		() => RefreshToken,
+		(refreshToken) => refreshToken.user
+	)
+	refreshTokens: RefreshToken[]
 }

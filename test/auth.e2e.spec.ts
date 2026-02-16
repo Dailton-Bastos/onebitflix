@@ -116,6 +116,7 @@ describe('Auth (e2e)', () => {
 				.expect(HttpStatus.OK)
 
 			expect(response.body.access_token).toBeDefined()
+			expect(response.body.refresh_token).toBeDefined()
 		})
 
 		it('should return a unauthorized error if the user password is incorrect', async () => {
@@ -168,6 +169,27 @@ describe('Auth (e2e)', () => {
 				jwtConstants.accessTokenName
 			)
 			expect(response.headers['set-cookie'][0]).toContain('HttpOnly')
+		})
+
+		it('should set the refresh token in a cookie', async () => {
+			await request(app.getHttpServer())
+				.post('/api/auth/register')
+				.send(dto)
+				.expect(HttpStatus.CREATED)
+
+			const response = await request(app.getHttpServer())
+				.post('/api/auth/login')
+				.send({
+					email: dto.email,
+					password: dto.password
+				})
+				.expect(HttpStatus.OK)
+
+			expect(response.headers['set-cookie']).toBeDefined()
+			expect(response.headers['set-cookie'][1]).toContain(
+				jwtConstants.refreshTokenName
+			)
+			expect(response.headers['set-cookie'][1]).toContain('HttpOnly')
 		})
 	})
 })
