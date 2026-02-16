@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { ScheduleModule } from '@nestjs/schedule'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module'
 			envFilePath: `.env.${process.env.NODE_ENV ?? 'development'}.local`,
 			validate
 		}),
+		ScheduleModule.forRoot(),
 		ServeStaticModule.forRoot(serveStaticConfig()),
 		TypeOrmModule.forRootAsync(typeOrmConfig.asProvider()),
 		// AdminJS version 7 is ESM-only. In order to import it, you have to use dynamic imports.

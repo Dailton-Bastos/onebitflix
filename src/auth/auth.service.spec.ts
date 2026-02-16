@@ -354,4 +354,57 @@ describe('AuthService', () => {
 			)
 		})
 	})
+
+	describe('deleteUnusedRefreshTokens', () => {
+		it('should delete unused refresh tokens correctly', async () => {
+			await service.deleteUnusedRefreshTokens()
+
+			expect(refreshTokenRepository.createQueryBuilder).toHaveBeenCalled()
+			expect(
+				refreshTokenRepository.createQueryBuilder().delete
+			).toHaveBeenCalled()
+			expect(
+				refreshTokenRepository.createQueryBuilder().delete().from
+			).toHaveBeenCalledWith(RefreshToken)
+			expect(
+				refreshTokenRepository.createQueryBuilder().delete().from(RefreshToken)
+					.where
+			).toHaveBeenCalledWith('expires_at < :now', { now: expect.any(Date) })
+			expect(
+				refreshTokenRepository
+					.createQueryBuilder()
+					.delete()
+					.from(RefreshToken)
+					.where('expires_at < :now', { now: expect.any(Date) }).orWhere
+			).toHaveBeenCalledWith('is_revoked = true')
+			expect(
+				refreshTokenRepository
+					.createQueryBuilder()
+					.delete()
+					.from(RefreshToken)
+					.where('expires_at < :now', { now: expect.any(Date) })
+					.orWhere('is_revoked = true').execute
+			).toHaveBeenCalled()
+		})
+
+		it('should throw an error if an error occurs while deleting unused refresh tokens', async () => {
+			jest
+				.spyOn(
+					refreshTokenRepository
+						.createQueryBuilder()
+						.delete()
+						.from(RefreshToken)
+						.where('expires_at < :now', { now: expect.any(Date) })
+						.orWhere('is_revoked = true'),
+					'execute'
+				)
+				.mockRejectedValue(
+					new Error('an error occurred while deleting unused refresh tokens')
+				)
+
+			await expect(service.deleteUnusedRefreshTokens()).rejects.toThrow(
+				InternalServerErrorException
+			)
+		})
+	})
 })

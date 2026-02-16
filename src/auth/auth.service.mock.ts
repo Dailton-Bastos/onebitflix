@@ -44,6 +44,17 @@ export const RefreshTokenRepositoryMock: Provider<
 		findOne: jest.fn().mockResolvedValue(refreshTokenMock),
 		create: jest.fn().mockReturnValue(refreshTokenMock),
 		save: jest.fn().mockResolvedValue(refreshTokenMock),
-		update: jest.fn().mockResolvedValue(undefined)
+		update: jest.fn().mockResolvedValue(undefined),
+		createQueryBuilder: jest.fn().mockReturnValue({
+			delete: jest.fn().mockReturnValue({
+				from: jest.fn().mockReturnValue({
+					where: jest.fn().mockReturnValue({
+						orWhere: jest.fn().mockReturnValue({
+							execute: jest.fn().mockResolvedValue(undefined)
+						})
+					})
+				})
+			})
+		})
 	}
 }

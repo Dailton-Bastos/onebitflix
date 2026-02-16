@@ -3,10 +3,12 @@ import {
 	Inject,
 	Injectable,
 	InternalServerErrorException,
+	Logger,
 	UnauthorizedException
 } from '@nestjs/common'
 import type { ConfigType } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
+import { Cron, CronExpression } from '@nestjs/schedule'
 import { InjectRepository } from '@nestjs/typeorm'
 import type { Response } from 'express'
 import { jwtConstants } from 'src/common/constants'
@@ -22,6 +24,8 @@ import { RefreshToken } from './refresh-token.entity'
 
 @Injectable()
 export class AuthService {
+	private readonly logger = new Logger(AuthService.name)
+
 	constructor(
 		private readonly usersService: UsersService,
 		private readonly hashingService: HashingService,
@@ -148,6 +152,30 @@ export class AuthService {
 		await this.refreshTokenRepository.save(data)
 
 		return refreshToken
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+		timeZone: 'UTC',
+		name: 'deleteUnusedRefreshTokens'
+	})
+	async deleteUnusedRefreshTokens(): Promise<void> {
+		this.logger.debug('Deleting unused refresh tokens 🕐...')
+		try {
+			await this.refreshTokenRepository
+				.createQueryBuilder()
+				.delete()
+				.from(RefreshToken)
+				.where('expires_at < :now', { now: new Date() })
+				.orWhere('is_revoked = true')
+				.execute()
+			this.logger.debug('Unused refresh tokens deleted successfully 🎉')
+		} catch {
+			this.logger.error('Failed to delete unused refresh tokens 💥')
+
+			throw new InternalServerErrorException(
+				'an error occurred while deleting unused refresh tokens'
+			)
+		}
 	}
 
 	private async revokeRefreshToken(userId: number): Promise<void> {
