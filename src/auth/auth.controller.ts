@@ -13,6 +13,7 @@ import { Serialize } from 'src/common/interceptors'
 import { CreateUserDto, UserDto } from 'src/users/dtos'
 import { User } from 'src/users/user.entity'
 import { AuthService } from './auth.service'
+import { Public } from './decorators'
 import { JwtLogoutAuthGuard } from './guards/jwt-logout-auth.guard'
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard'
 import { LocalAuthGuard } from './guards/local-auth.guard'
@@ -22,11 +23,13 @@ import { LocalAuthGuard } from './guards/local-auth.guard'
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
+	@Public()
 	@Post('register')
 	async register(@Body() createUserDto: CreateUserDto): Promise<User> {
 		return this.authService.register(createUserDto)
 	}
 
+	@Public()
 	@Post('login')
 	@UseGuards(LocalAuthGuard)
 	@HttpCode(HttpStatus.OK)
@@ -37,6 +40,7 @@ export class AuthController {
 		return this.authService.login(user, response)
 	}
 
+	@Public()
 	@Post('refresh')
 	@UseGuards(JwtRefreshAuthGuard)
 	@HttpCode(HttpStatus.OK)

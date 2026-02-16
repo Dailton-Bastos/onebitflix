@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
+import { Public } from 'src/auth/decorators'
 import { PaginationResponseDto } from 'src/common/dtos'
 import { Serialize } from 'src/common/interceptors'
 import { PaginationDto } from 'src/common/pagination'
@@ -16,6 +17,7 @@ export class CoursesController {
 		return this.coursesService.getRandomFeaturedCourses()
 	}
 
+	@Public()
 	@Get('/newest')
 	async getTopTenNewestCourses(): Promise<Course[]> {
 		return this.coursesService.getTopTenNewestCourses()

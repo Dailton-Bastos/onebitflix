@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { APP_GUARD } from '@nestjs/core'
 import { ScheduleModule } from '@nestjs/schedule'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { CategoriesModule } from './categories/categories.module'
 import { CookiesModule } from './common/cookies/cookies.module'
 import { adminjsConfig } from './config/adminjs.config'
@@ -44,6 +46,12 @@ import { UsersModule } from './users/users.module'
 		EpisodesModule,
 		UsersModule,
 		AuthModule
+	],
+	providers: [
+		{
+			provide: APP_GUARD,
+			useClass: JwtAuthGuard
+		}
 	]
 })
 export class AppModule {}
