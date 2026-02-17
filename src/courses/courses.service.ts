@@ -84,4 +84,10 @@ export class CoursesService {
 
 		return new PaginationDto(courses, paginationMeta)
 	}
+
+	async findById(id: number): Promise<Course | null> {
+		const course = await this.courseRepository.findOne({ where: { id } })
+
+		return course
+	}
 }

@@ -179,4 +179,40 @@ describe('CoursesService', () => {
 			expect(result.meta.hasNextPage).toBe(false)
 		})
 	})
+
+	describe('findById', () => {
+		it('should find a course with findOne repository method', async () => {
+			const id = 1
+
+			const result = await service.findById(id)
+
+			expect(repository.findOne).toHaveBeenCalledWith({ where: { id } })
+
+			expect(result).toBeDefined()
+		})
+
+		it('should return a course', async () => {
+			const id = 1
+
+			jest
+				.spyOn(repository, 'findOne')
+				.mockResolvedValue(courseMock as unknown as Course)
+
+			const result = await service.findById(id)
+
+			expect(result).toBeDefined()
+			expect(result?.id).toBe(id)
+			expect(result?.name).toBe(courseMock.name)
+		})
+
+		it('should return null if the course is not found', async () => {
+			const id = 999
+
+			jest.spyOn(repository, 'findOne').mockResolvedValue(null)
+
+			const result = await service.findById(id)
+
+			expect(result).toBeNull()
+		})
+	})
 })

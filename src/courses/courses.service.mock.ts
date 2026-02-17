@@ -56,7 +56,8 @@ export const CoursesServiceMock: Provider<MockType<CoursesService>> = {
 				hasPreviousPage: false,
 				hasNextPage: false
 			}
-		})
+		}),
+		findById: jest.fn().mockResolvedValue(courseMock)
 	}
 }
 

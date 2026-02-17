@@ -14,6 +14,7 @@ import { serveStaticConfig } from './config/serve-static.config'
 import { typeOrmConfig } from './config/typeOrm.config'
 import { CoursesModule } from './courses/courses.module'
 import { EpisodesModule } from './episodes/episodes.module'
+import { FavoritesModule } from './favorites/favorites.module'
 import { HealthModule } from './health/health.module'
 import { UsersModule } from './users/users.module'
 
@@ -45,7 +46,8 @@ import { UsersModule } from './users/users.module'
 		CoursesModule,
 		EpisodesModule,
 		UsersModule,
-		AuthModule
+		AuthModule,
+		FavoritesModule
 	],
 	providers: [
 		{

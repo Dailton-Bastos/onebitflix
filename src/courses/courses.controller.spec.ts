@@ -85,7 +85,6 @@ describe('CoursesController', () => {
 			name: 'test',
 			page: 1,
 			take: 10,
-			skip: 0,
 			order: Order.ASC
 		}
 
