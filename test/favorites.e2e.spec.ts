@@ -1,5 +1,6 @@
 import { HttpStatus } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
+import { CourseDto } from 'src/courses/dtos/course.dto'
 import { CreateFavoriteDto } from 'src/favorites/dtos/create-favorite.dto'
 import { CreateUserDto } from 'src/users/dtos/create-user.dto'
 import request from 'supertest'
@@ -76,6 +77,19 @@ describe('Favorites (e2e)', () => {
 
 			expect(response.body.message).toBeDefined()
 			expect(response.body.message).toBe('course not found')
+		})
+	})
+
+	describe('GET /api/favorites', () => {
+		it('should return a pagination of favorites courses by user id', async () => {
+			const response = await request(app.getHttpServer())
+				.get('/api/favorites')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.OK)
+
+			expect(response.body.data).toBeDefined()
+			expect(response.body.meta).toBeDefined()
+			expect(response.body.data).toBeInstanceOf(Array<CourseDto>)
 		})
 	})
 })
