@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Post, UseGuards } from '@nestjs/common'
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { CurrentUser } from 'src/common/decorators'
 import { User } from 'src/users/user.entity'
 import { CreateFavoriteDto } from './dtos/create-favorite.dto'
@@ -10,6 +11,7 @@ export class FavoritesController {
 	constructor(private readonly favoritesService: FavoritesService) {}
 
 	@Post()
+	@UseGuards(JwtAuthGuard)
 	async create(
 		@Body() createFavoriteDto: CreateFavoriteDto,
 		@CurrentUser() user: User

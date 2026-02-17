@@ -14,6 +14,7 @@ import { Course } from 'src/courses/course.entity'
 import { CoursesModule } from 'src/courses/courses.module'
 import { Episode } from 'src/episodes/episode.entity'
 import { EpisodesModule } from 'src/episodes/episodes.module'
+import { FavoritesModule } from 'src/favorites/favorites.module'
 import { HealthModule } from 'src/health/health.module'
 import type { App } from 'supertest/types'
 import { Repository } from 'typeorm'
@@ -37,7 +38,8 @@ global.beforeEach(async () => {
 			CategoriesModule,
 			CoursesModule,
 			EpisodesModule,
-			AuthModule
+			AuthModule,
+			FavoritesModule
 		]
 	}).compile()
 
