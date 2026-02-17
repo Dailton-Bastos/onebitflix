@@ -1,8 +1,16 @@
 import { NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import {
+	PaginationDto,
+	PaginationMetaDto,
+	PaginationOptionsDto
+} from 'src/common/pagination'
 import { CoursesService } from 'src/courses/courses.service'
-import { CoursesServiceMock } from 'src/courses/courses.service.mock'
+import {
+	CoursesServiceMock,
+	courseMock
+} from 'src/courses/courses.service.mock'
 import { Repository } from 'typeorm'
 import { Favorite } from './favorite.entity'
 import { FavoritesService } from './favorites.service'
@@ -21,7 +29,8 @@ describe('FavoritesService', () => {
 					provide: getRepositoryToken(Favorite),
 					useValue: {
 						create: jest.fn(),
-						save: jest.fn()
+						save: jest.fn(),
+						findAndCount: jest.fn()
 					}
 				}
 			]
@@ -84,6 +93,47 @@ describe('FavoritesService', () => {
 			expect(coursesService.findById).toHaveBeenCalledWith(courseId)
 			expect(favoriteRepository.create).not.toHaveBeenCalled()
 			expect(favoriteRepository.save).not.toHaveBeenCalled()
+		})
+	})
+
+	describe('findByUserId', () => {
+		it('should return a pagination of favorites courses by user id', async () => {
+			const userId = 1
+			const courseId = 1
+
+			const paginationOptionsDto = new PaginationOptionsDto()
+
+			const paginationMeta = new PaginationMetaDto({
+				itemCount: 1,
+				options: paginationOptionsDto
+			})
+
+			const favoriteMock = {
+				userId,
+				courseId,
+				createdAt: new Date(),
+				course: courseMock
+			} as Favorite
+
+			const paginationDto = new PaginationDto([courseMock], paginationMeta)
+
+			jest
+				.spyOn(favoriteRepository, 'findAndCount')
+				.mockResolvedValue([[favoriteMock], 1])
+
+			const result = await service.findByUserId(userId, paginationOptionsDto)
+
+			expect(favoriteRepository.findAndCount).toHaveBeenCalledWith({
+				where: { userId },
+				relations: { course: true },
+				order: { createdAt: paginationOptionsDto.order },
+				take: paginationOptionsDto.take,
+				skip: paginationOptionsDto.skip
+			})
+
+			expect(result.data).toEqual([courseMock])
+			expect(result.meta).toEqual(paginationDto.meta)
+			expect(result).toEqual(paginationDto)
 		})
 	})
 })

@@ -1,5 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { plainToInstance } from 'class-transformer'
+import {
+	PaginationDto,
+	PaginationMetaDto,
+	PaginationOptionsDto
+} from 'src/common/pagination'
+import { courseMock } from 'src/courses/courses.service.mock'
 import { userMock } from 'src/users/users.service.mock'
 import { CreateFavoriteDto } from './dtos/create-favorite.dto'
 import { Favorite } from './favorite.entity'
@@ -17,7 +23,8 @@ describe('FavoritesController', () => {
 				{
 					provide: FavoritesService,
 					useValue: {
-						create: jest.fn()
+						create: jest.fn(),
+						findByUserId: jest.fn()
 					}
 				}
 			]
@@ -54,6 +61,32 @@ describe('FavoritesController', () => {
 			)
 
 			expect(result).toEqual(favoriteMock)
+		})
+	})
+
+	describe('findByUserId', () => {
+		it('should return a pagination of favorites courses by user id', async () => {
+			const paginationOptionsDto = new PaginationOptionsDto()
+
+			const paginationMeta = new PaginationMetaDto({
+				itemCount: 1,
+				options: paginationOptionsDto
+			})
+
+			const paginationDto = new PaginationDto([courseMock], paginationMeta)
+
+			jest.spyOn(service, 'findByUserId').mockResolvedValue(paginationDto)
+
+			const result = await controller.findByUserId(
+				paginationOptionsDto,
+				userMock
+			)
+
+			expect(service.findByUserId).toHaveBeenCalledWith(
+				userMock.id,
+				paginationOptionsDto
+			)
+			expect(result).toEqual(paginationDto)
 		})
 	})
 })
