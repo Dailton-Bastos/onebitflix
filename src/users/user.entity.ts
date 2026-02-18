@@ -1,5 +1,6 @@
 import { RefreshToken } from 'src/auth/refresh-token.entity'
 import { Favorite } from 'src/favorites/favorite.entity'
+import { Like } from 'src/likes/like.entity'
 import {
 	BaseEntity,
 	Column,
@@ -60,4 +61,10 @@ export class User extends BaseEntity {
 		(favorite) => favorite.user
 	)
 	favorites: Favorite[]
+
+	@OneToMany(
+		() => Like,
+		(like) => like.user
+	)
+	likes: Like[]
 }

@@ -16,6 +16,7 @@ import { CoursesModule } from './courses/courses.module'
 import { EpisodesModule } from './episodes/episodes.module'
 import { FavoritesModule } from './favorites/favorites.module'
 import { HealthModule } from './health/health.module'
+import { LikesModule } from './likes/likes.module'
 import { UsersModule } from './users/users.module'
 
 @Module({
@@ -47,7 +48,8 @@ import { UsersModule } from './users/users.module'
 		EpisodesModule,
 		UsersModule,
 		AuthModule,
-		FavoritesModule
+		FavoritesModule,
+		LikesModule
 	],
 	providers: [
 		{

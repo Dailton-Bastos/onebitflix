@@ -1,6 +1,7 @@
 import { Category } from 'src/categories/category.entity'
 import { Episode } from 'src/episodes/episode.entity'
 import { Favorite } from 'src/favorites/favorite.entity'
+import { Like } from 'src/likes/like.entity'
 import {
 	BaseEntity,
 	Column,
@@ -62,4 +63,10 @@ export class Course extends BaseEntity {
 		(favorite) => favorite.course
 	)
 	favorites: Favorite[]
+
+	@OneToMany(
+		() => Like,
+		(like) => like.course
+	)
+	likes: Like[]
 }
