@@ -23,4 +23,12 @@ export class LikesService {
 
 		return this.likeRepository.save(like)
 	}
+
+	async delete(userId: number, courseId: number): Promise<void> {
+		const result = await this.likeRepository.delete({ userId, courseId })
+
+		if (result.affected === 0) {
+			throw new NotFoundException('like not found')
+		}
+	}
 }

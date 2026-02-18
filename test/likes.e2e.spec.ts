@@ -78,4 +78,35 @@ describe('Likes (e2e)', () => {
 			expect(response.body.message).toBe('course not found')
 		})
 	})
+
+	describe('DELETE /api/likes/:courseId', () => {
+		it('should delete a like', async () => {
+			const createLikeDto = plainToInstance(CreateLikeDto, {
+				courseId: 1
+			})
+
+			await request(app.getHttpServer())
+				.post('/api/likes')
+				.send(createLikeDto)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.CREATED)
+
+			const response = await request(app.getHttpServer())
+				.delete('/api/likes/1')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.NO_CONTENT)
+
+			expect(response.body).toEqual({})
+		})
+
+		it('should return a 404 error if the like is not found', async () => {
+			const response = await request(app.getHttpServer())
+				.delete('/api/likes/999999')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.NOT_FOUND)
+
+			expect(response.body.message).toBeDefined()
+			expect(response.body.message).toBe('like not found')
+		})
+	})
 })

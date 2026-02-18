@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { plainToInstance } from 'class-transformer'
 import { userMock } from 'src/users/users.service.mock'
 import { CreateLikeDto } from './dtos/create-like.dto'
+import { DeleteLikeDto } from './dtos/delete-like.dto'
 import { Like } from './like.entity'
 import { LikesController } from './likes.controller'
 import { LikesService } from './likes.service'
@@ -17,7 +18,8 @@ describe('LikesController', () => {
 				{
 					provide: LikesService,
 					useValue: {
-						create: jest.fn()
+						create: jest.fn(),
+						delete: jest.fn()
 					}
 				}
 			]
@@ -54,6 +56,22 @@ describe('LikesController', () => {
 			)
 
 			expect(result).toEqual(likeMock)
+		})
+	})
+
+	describe('delete', () => {
+		it('should delete a like and return void', async () => {
+			const deleteLikeDto = plainToInstance(DeleteLikeDto, {
+				courseId: 1
+			})
+
+			const result = await controller.delete(deleteLikeDto, userMock)
+
+			expect(service.delete).toHaveBeenCalledWith(
+				userMock.id,
+				deleteLikeDto.courseId
+			)
+			expect(result).toBeUndefined()
 		})
 	})
 })

@@ -21,7 +21,8 @@ describe('LikesService', () => {
 					provide: getRepositoryToken(Like),
 					useValue: {
 						create: jest.fn(),
-						save: jest.fn()
+						save: jest.fn(),
+						delete: jest.fn()
 					}
 				}
 			]
@@ -79,6 +80,36 @@ describe('LikesService', () => {
 			expect(coursesService.findById).toHaveBeenCalledWith(courseId)
 			expect(likeRepository.create).not.toHaveBeenCalled()
 			expect(likeRepository.save).not.toHaveBeenCalled()
+		})
+	})
+
+	describe('delete', () => {
+		it('should delete a like and return void', async () => {
+			const userId = 1
+			const courseId = 1
+
+			jest
+				.spyOn(likeRepository, 'delete')
+				.mockResolvedValue({ affected: 1, raw: [] })
+
+			await service.delete(userId, courseId)
+
+			expect(likeRepository.delete).toHaveBeenCalledWith({ userId, courseId })
+		})
+
+		it('should throw a NotFoundException if the like is not found', async () => {
+			const userId = 1
+			const courseId = 999
+
+			jest
+				.spyOn(likeRepository, 'delete')
+				.mockResolvedValue({ affected: 0, raw: [] })
+
+			await expect(service.delete(userId, courseId)).rejects.toThrow(
+				NotFoundException
+			)
+
+			expect(likeRepository.delete).toHaveBeenCalledWith({ userId, courseId })
 		})
 	})
 })
