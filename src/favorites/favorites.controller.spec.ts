@@ -8,6 +8,7 @@ import {
 import { courseMock } from 'src/courses/courses.service.mock'
 import { userMock } from 'src/users/users.service.mock'
 import { CreateFavoriteDto } from './dtos/create-favorite.dto'
+import { DeleteFavoriteDto } from './dtos/delete-favorite.dto'
 import { Favorite } from './favorite.entity'
 import { FavoritesController } from './favorites.controller'
 import { FavoritesService } from './favorites.service'
@@ -24,7 +25,8 @@ describe('FavoritesController', () => {
 					provide: FavoritesService,
 					useValue: {
 						create: jest.fn(),
-						findByUserId: jest.fn()
+						findByUserId: jest.fn(),
+						delete: jest.fn()
 					}
 				}
 			]
@@ -87,6 +89,22 @@ describe('FavoritesController', () => {
 				paginationOptionsDto
 			)
 			expect(result).toEqual(paginationDto)
+		})
+	})
+
+	describe('delete', () => {
+		it('should delete a favorite and return void', async () => {
+			const deleteFavoriteDto = plainToInstance(DeleteFavoriteDto, {
+				courseId: 1
+			})
+
+			const result = await controller.delete(deleteFavoriteDto, userMock)
+
+			expect(service.delete).toHaveBeenCalledWith(
+				userMock.id,
+				deleteFavoriteDto.courseId
+			)
+			expect(result).toBeUndefined()
 		})
 	})
 })

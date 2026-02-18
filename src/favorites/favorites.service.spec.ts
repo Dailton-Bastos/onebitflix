@@ -30,7 +30,8 @@ describe('FavoritesService', () => {
 					useValue: {
 						create: jest.fn(),
 						save: jest.fn(),
-						findAndCount: jest.fn()
+						findAndCount: jest.fn(),
+						delete: jest.fn()
 					}
 				}
 			]
@@ -134,6 +135,42 @@ describe('FavoritesService', () => {
 			expect(result.data).toEqual([courseMock])
 			expect(result.meta).toEqual(paginationDto.meta)
 			expect(result).toEqual(paginationDto)
+		})
+	})
+
+	describe('delete', () => {
+		it('should delete a favorite and return void', async () => {
+			const userId = 1
+			const courseId = 1
+
+			jest
+				.spyOn(favoriteRepository, 'delete')
+				.mockResolvedValue({ affected: 1, raw: [] })
+
+			await service.delete(userId, courseId)
+
+			expect(favoriteRepository.delete).toHaveBeenCalledWith({
+				userId,
+				courseId
+			})
+		})
+
+		it('should throw an error if the favorite is not found', async () => {
+			const userId = 1
+			const courseId = 1
+
+			jest
+				.spyOn(favoriteRepository, 'delete')
+				.mockResolvedValue({ affected: 0, raw: [] })
+
+			await expect(service.delete(userId, courseId)).rejects.toThrow(
+				NotFoundException
+			)
+
+			expect(favoriteRepository.delete).toHaveBeenCalledWith({
+				userId,
+				courseId
+			})
 		})
 	})
 })

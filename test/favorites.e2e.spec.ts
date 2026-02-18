@@ -92,4 +92,35 @@ describe('Favorites (e2e)', () => {
 			expect(response.body.data).toBeInstanceOf(Array<CourseDto>)
 		})
 	})
+
+	describe('DELETE /api/favorites/:courseId', () => {
+		it('should delete a favorite', async () => {
+			const createFavoriteDto = plainToInstance(CreateFavoriteDto, {
+				courseId: 1
+			})
+
+			await request(app.getHttpServer())
+				.post('/api/favorites')
+				.send(createFavoriteDto)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.CREATED)
+
+			const response = await request(app.getHttpServer())
+				.delete('/api/favorites/1')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.NO_CONTENT)
+
+			expect(response.body).toEqual({})
+		})
+
+		it('should return a 404 error if the favorite is not found', async () => {
+			const response = await request(app.getHttpServer())
+				.delete('/api/favorites/999999')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.NOT_FOUND)
+
+			expect(response.body.message).toBeDefined()
+			expect(response.body.message).toBe('favorite not found')
+		})
+	})
 })

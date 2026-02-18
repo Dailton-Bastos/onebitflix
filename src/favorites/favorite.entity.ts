@@ -19,14 +19,16 @@ export class Favorite extends BaseEntity {
 
 	@ManyToOne(
 		() => User,
-		(user) => user.favorites
+		(user) => user.favorites,
+		{ cascade: ['update'], onDelete: 'CASCADE' }
 	)
 	@JoinColumn({ name: 'user_id' })
 	user: User
 
 	@ManyToOne(
 		() => Course,
-		(course) => course.favorites
+		(course) => course.favorites,
+		{ cascade: ['update'], onDelete: 'CASCADE' }
 	)
 	@JoinColumn({ name: 'course_id' })
 	course: Course

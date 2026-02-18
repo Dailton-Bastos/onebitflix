@@ -59,4 +59,12 @@ export class FavoritesService {
 
 		return new PaginationDto(courses, paginationMeta)
 	}
+
+	async delete(userId: number, courseId: number): Promise<void> {
+		const result = await this.favoriteRepository.delete({ userId, courseId })
+
+		if (result.affected === 0) {
+			throw new NotFoundException('favorite not found')
+		}
+	}
 }

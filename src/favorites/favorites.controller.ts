@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	Post,
+	Query,
+	UseGuards
+} from '@nestjs/common'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { CurrentUser } from 'src/common/decorators'
 import { PaginationResponseDto } from 'src/common/dtos'
@@ -8,6 +19,7 @@ import { Course } from 'src/courses/course.entity'
 import { CourseDto } from 'src/courses/dtos/course.dto'
 import { User } from 'src/users/user.entity'
 import { CreateFavoriteDto } from './dtos/create-favorite.dto'
+import { DeleteFavoriteDto } from './dtos/delete-favorite.dto'
 import { Favorite } from './favorite.entity'
 import { FavoritesService } from './favorites.service'
 
@@ -32,5 +44,15 @@ export class FavoritesController {
 		@CurrentUser() user: User
 	): Promise<PaginationDto<Course>> {
 		return this.favoritesService.findByUserId(user.id, paginationOptionsDto)
+	}
+
+	@Delete(':courseId')
+	@UseGuards(JwtAuthGuard)
+	@HttpCode(HttpStatus.NO_CONTENT)
+	async delete(
+		@Param() params: DeleteFavoriteDto,
+		@CurrentUser() user: User
+	): Promise<void> {
+		return this.favoritesService.delete(user.id, params.courseId)
 	}
 }
