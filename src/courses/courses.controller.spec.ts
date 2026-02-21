@@ -5,7 +5,7 @@ import { userMock } from 'src/users/users.service.mock'
 import { CoursesController } from './courses.controller'
 import { CoursesService } from './courses.service'
 import { CoursesServiceMock, courseMock } from './courses.service.mock'
-import { SearchDto } from './dtos'
+import { CourseDto, SearchDto } from './dtos'
 
 describe('CoursesController', () => {
 	let controller: CoursesController
@@ -125,6 +125,18 @@ describe('CoursesController', () => {
 			expect(result).toBeDefined()
 			expect(result.data).toBeDefined()
 			expect(result.meta).toBeDefined()
+		})
+	})
+
+	describe('getTopTenMostLikedCourses', () => {
+		it('should return top ten most liked courses', async () => {
+			const result = await controller.getTopTenMostLikedCourses()
+
+			expect(service.getTopTenMostLikedCourses).toHaveBeenCalled()
+
+			expect(result).toBeDefined()
+			expect(result[0].likes).toBeDefined()
+			expect(result).toBeInstanceOf(Array<CourseDto>)
 		})
 	})
 })

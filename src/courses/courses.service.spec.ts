@@ -8,7 +8,7 @@ import { FavoritesRepositoryMock } from 'src/favorites/favorites.service.mock'
 import { Like } from 'src/likes/like.entity'
 import { LikesRepositoryMock } from 'src/likes/likes.service.mock'
 import { userMock } from 'src/users/users.service.mock'
-import { ILike, Repository } from 'typeorm'
+import { ILike, Repository, SelectQueryBuilder } from 'typeorm'
 import { Course } from './course.entity'
 import { CoursesService } from './courses.service'
 import { CourseRepositoryMock, courseMock } from './courses.service.mock'
@@ -319,6 +319,79 @@ describe('CoursesService', () => {
 			const result = await service.findById(id)
 
 			expect(result).toBeNull()
+		})
+	})
+
+	describe('getTopTenMostLikedCourses', () => {
+		it('should return top ten most liked courses', async () => {
+			jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
+				select: jest.fn().mockReturnThis(),
+				addSelect: jest.fn().mockReturnThis(),
+				leftJoin: jest.fn().mockReturnThis(),
+				innerJoin: jest.fn().mockReturnThis(),
+				groupBy: jest.fn().mockReturnThis(),
+				orderBy: jest.fn().mockReturnThis(),
+				take: jest.fn().mockReturnThis(),
+				getRawMany: jest.fn().mockResolvedValue([
+					{
+						...courseMock,
+						likes: 1
+					}
+				])
+			} as unknown as SelectQueryBuilder<Course>)
+
+			const result = await service.getTopTenMostLikedCourses()
+
+			expect(repository.createQueryBuilder).toHaveBeenCalledWith('courses')
+			expect(repository.createQueryBuilder().select).toHaveBeenCalledWith(
+				'courses.id',
+				'id'
+			)
+			expect(repository.createQueryBuilder().addSelect).toHaveBeenCalledWith(
+				'courses.name',
+				'name'
+			)
+			expect(repository.createQueryBuilder().addSelect).toHaveBeenCalledWith(
+				'courses.synopsis',
+				'synopsis'
+			)
+			expect(repository.createQueryBuilder().addSelect).toHaveBeenCalledWith(
+				'courses.thumbnailUrl',
+				'thumbnailUrl'
+			)
+			expect(repository.createQueryBuilder().addSelect).toHaveBeenCalledWith(
+				'COUNT(user_id)',
+				'likes'
+			)
+			expect(repository.createQueryBuilder().leftJoin).toHaveBeenCalledWith(
+				'likes',
+				'likes',
+				'likes.course_id = courses.id'
+			)
+			expect(repository.createQueryBuilder().innerJoin).toHaveBeenCalledWith(
+				'users',
+				'users',
+				'users.id = likes.user_id'
+			)
+			expect(repository.createQueryBuilder().groupBy).toHaveBeenCalledWith(
+				'courses.id'
+			)
+			expect(repository.createQueryBuilder().orderBy).toHaveBeenCalledWith(
+				'likes',
+				'DESC'
+			)
+			expect(repository.createQueryBuilder().take).toHaveBeenCalledWith(10)
+			expect(repository.createQueryBuilder().getRawMany).toHaveBeenCalledWith<
+				Course[]
+			>()
+
+			expect(result).toBeDefined()
+			expect(result.length).toBe(1)
+			expect(result[0].id).toBe(courseMock.id)
+			expect(result[0].name).toBe(courseMock.name)
+			expect(result[0].synopsis).toBe(courseMock.synopsis)
+			expect(result[0].thumbnailUrl).toBe(courseMock.thumbnailUrl)
+			expect(result[0].likes).toBe(1)
 		})
 	})
 })

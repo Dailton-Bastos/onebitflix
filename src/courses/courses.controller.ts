@@ -35,6 +35,12 @@ export class CoursesController {
 		return this.coursesService.searchByCourseName(searchDto)
 	}
 
+	@Get('/popular')
+	@Serialize(CourseDto)
+	async getTopTenMostLikedCourses(): Promise<Course[]> {
+		return this.coursesService.getTopTenMostLikedCourses()
+	}
+
 	@Get('/:id')
 	@UseGuards(JwtAuthGuard)
 	async findByIdWithEpisodes(

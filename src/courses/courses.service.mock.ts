@@ -59,7 +59,13 @@ export const CoursesServiceMock: Provider<MockType<CoursesService>> = {
 				hasNextPage: false
 			}
 		}),
-		findById: jest.fn().mockResolvedValue(courseMock)
+		findById: jest.fn().mockResolvedValue(courseMock),
+		getTopTenMostLikedCourses: jest.fn().mockResolvedValue([
+			{
+				...courseMock,
+				likes: 1
+			}
+		])
 	}
 }
 

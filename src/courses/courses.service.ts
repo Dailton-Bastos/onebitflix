@@ -109,6 +109,40 @@ export class CoursesService {
 		return course
 	}
 
+	async getTopTenMostLikedCourses(): Promise<Course[]> {
+		/*
+			SELECT
+        courses.id,
+        courses.name,
+        courses.synopsis,
+        courses.thumbnail_url as thumbnailUrl,
+        COUNT(users.id) AS likes
+      FROM courses
+        LEFT OUTER JOIN likes
+          ON courses.id = likes.course_id
+          INNER JOIN users
+            ON users.id = likes.user_id
+      GROUP BY courses.id
+      ORDER BY likes DESC
+      LIMIT 10;
+		*/
+		const courses = await this.courseRepository
+			.createQueryBuilder('courses')
+			.select('courses.id', 'id')
+			.addSelect('courses.name', 'name')
+			.addSelect('courses.synopsis', 'synopsis')
+			.addSelect('courses.thumbnailUrl', 'thumbnailUrl')
+			.addSelect('COUNT(user_id)', 'likes')
+			.leftJoin('likes', 'likes', 'likes.course_id = courses.id')
+			.innerJoin('users', 'users', 'users.id = likes.user_id')
+			.groupBy('courses.id')
+			.orderBy('likes', 'DESC')
+			.take(10)
+			.getRawMany<Course>()
+
+		return courses
+	}
+
 	private async isLiked(userId: number, courseId: number): Promise<boolean> {
 		const result = await this.likeRepository.findOne({
 			where: { userId, courseId }
