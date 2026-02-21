@@ -1,6 +1,10 @@
 import { HttpStatus } from '@nestjs/common'
+import { plainToInstance } from 'class-transformer'
+import { Category } from 'src/categories/category.entity'
 import { Order } from 'src/common/constants'
+import { Course } from 'src/courses/course.entity'
 import { SearchDto } from 'src/courses/dtos'
+import { CreateUserDto } from 'src/users/dtos/create-user.dto'
 import request from 'supertest'
 import {
 	app,
@@ -10,33 +14,64 @@ import {
 } from './setup'
 
 describe('Courses (e2e)', () => {
+	let accessToken: string
+	let category: Category
+	let course: Course
+
+	beforeEach(async () => {
+		const createUserDto = plainToInstance(CreateUserDto, {
+			firstName: 'Test',
+			lastName: 'Teste',
+			phone: '123456789012345',
+			birth: '1990-01-01',
+			email: 'test@test.com',
+			password: '1234567890'
+		})
+
+		await request(app.getHttpServer())
+			.post('/api/auth/register')
+			.send(createUserDto)
+			.expect(HttpStatus.CREATED)
+
+		const loginResponse = await request(app.getHttpServer())
+			.post('/api/auth/login')
+			.send({ email: createUserDto.email, password: createUserDto.password })
+			.expect(HttpStatus.OK)
+
+		accessToken = loginResponse.body.access_token
+
+		const categoryData = categoryRepository.create({
+			name: 'test category',
+			position: 1
+		})
+
+		category = await categoryRepository.save(categoryData)
+
+		const courseData = courseRepository.create({
+			name: 'test course',
+			synopsis: 'test synopsis',
+			category
+		})
+
+		course = await courseRepository.save(courseData)
+	})
+
 	describe('GET /api/courses/:id', () => {
 		it('should throw an error if the course is not found', async () => {
+			await courseRepository.delete(course.id)
+
 			const response = await request(app.getHttpServer())
 				.get('/api/courses/1')
+				.set('Authorization', `Bearer ${accessToken}`)
 				.expect(HttpStatus.NOT_FOUND)
 
 			expect(response.body.message).toBe('course not found')
 		})
 
 		it('should find a course by id', async () => {
-			const categoryData = categoryRepository.create({
-				name: 'test category',
-				position: 1
-			})
-
-			const category = await categoryRepository.save(categoryData)
-
-			const courseData = courseRepository.create({
-				name: 'test course',
-				synopsis: 'test synopsis',
-				category
-			})
-
-			const course = await courseRepository.save(courseData)
-
 			const response = await request(app.getHttpServer())
 				.get(`/api/courses/${course.id}`)
+				.set('Authorization', `Bearer ${accessToken}`)
 				.expect(HttpStatus.OK)
 
 			expect(response.body.id).toBe(course.id)
@@ -48,23 +83,9 @@ describe('Courses (e2e)', () => {
 		})
 
 		it('should return a existing course without createdAt and updatedAt properties', async () => {
-			const categoryData = categoryRepository.create({
-				name: 'test category',
-				position: 1
-			})
-
-			const category = await categoryRepository.save(categoryData)
-
-			const courseData = courseRepository.create({
-				name: 'test course',
-				synopsis: 'test synopsis',
-				category
-			})
-
-			const course = await courseRepository.save(courseData)
-
 			const response = await request(app.getHttpServer())
 				.get(`/api/courses/${course.id}`)
+				.set('Authorization', `Bearer ${accessToken}`)
 				.expect(HttpStatus.OK)
 
 			expect(response.body.id).toBe(course.id)
@@ -73,21 +94,6 @@ describe('Courses (e2e)', () => {
 		})
 
 		it('should return a course with episodes', async () => {
-			const categoryData = categoryRepository.create({
-				name: 'test category',
-				position: 1
-			})
-
-			const category = await categoryRepository.save(categoryData)
-
-			const courseData = courseRepository.create({
-				name: 'test course',
-				synopsis: 'test synopsis',
-				category
-			})
-
-			const course = await courseRepository.save(courseData)
-
 			const episodeData = episodeRepository.create({
 				name: 'test episode',
 				synopsis: 'test synopsis',
@@ -101,6 +107,7 @@ describe('Courses (e2e)', () => {
 
 			const response = await request(app.getHttpServer())
 				.get(`/api/courses/${course.id}`)
+				.set('Authorization', `Bearer ${accessToken}`)
 				.expect(HttpStatus.OK)
 
 			expect(response.body.id).toBe(course.id)
@@ -115,6 +122,16 @@ describe('Courses (e2e)', () => {
 			expect(response.body.episodes[0].createdAt).toBeUndefined()
 			expect(response.body.episodes[0].updatedAt).toBeUndefined()
 		})
+
+		it('should return a course with isLiked and isFavorite properties', async () => {
+			const response = await request(app.getHttpServer())
+				.get(`/api/courses/${course.id}`)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.OK)
+
+			expect(response.body.isLiked).toBe(false)
+			expect(response.body.isFavorite).toBe(false)
+		})
 	})
 
 	describe('GET /api/courses/search', () => {
@@ -128,21 +145,6 @@ describe('Courses (e2e)', () => {
 		})
 
 		it('should return courses by name', async () => {
-			const categoryData = categoryRepository.create({
-				name: 'test category',
-				position: 1
-			})
-
-			const category = await categoryRepository.save(categoryData)
-
-			const courseData = courseRepository.create({
-				name: 'test course',
-				synopsis: 'test synopsis',
-				category
-			})
-
-			const course = await courseRepository.save(courseData)
-
 			const response = await request(app.getHttpServer())
 				.get('/api/courses/search')
 				.query({ name: 'test' })
@@ -153,21 +155,6 @@ describe('Courses (e2e)', () => {
 		})
 
 		it('should return courses by name with pagination', async () => {
-			const categoryData = categoryRepository.create({
-				name: 'test category',
-				position: 1
-			})
-
-			const category = await categoryRepository.save(categoryData)
-
-			const courseData = courseRepository.create({
-				name: 'test course',
-				synopsis: 'test synopsis',
-				category
-			})
-
-			const course = await courseRepository.save(courseData)
-
 			const searchDto: SearchDto = {
 				name: 'test',
 				page: 1,
@@ -206,13 +193,6 @@ describe('Courses (e2e)', () => {
 
 	describe('GET /api/courses/featured', () => {
 		it('should return three random featured courses', async () => {
-			const categoryData = categoryRepository.create({
-				name: 'test category',
-				position: 1
-			})
-
-			const category = await categoryRepository.save(categoryData)
-
 			const coursesData = await Promise.all(
 				Array.from({ length: 5 }).map(async (_, index) => {
 					return courseRepository.create({
@@ -240,13 +220,6 @@ describe('Courses (e2e)', () => {
 
 	describe('GET /api/courses/newest', () => {
 		it('should return ten newest courses', async () => {
-			const categoryData = categoryRepository.create({
-				name: 'test category',
-				position: 1
-			})
-
-			const category = await categoryRepository.save(categoryData)
-
 			const coursesData = await Promise.all(
 				Array.from({ length: 15 }).map(async (_, index) => {
 					return courseRepository.create({

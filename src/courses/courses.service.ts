@@ -6,20 +6,29 @@ import {
 import { InjectRepository } from '@nestjs/typeorm'
 import { DEFAULT_PAGINATION_LIMIT, Order } from 'src/common/constants'
 import { PaginationDto, PaginationMetaDto } from 'src/common/pagination'
+import { Favorite } from 'src/favorites/favorite.entity'
+import { Like } from 'src/likes/like.entity'
 import { ILike, Repository } from 'typeorm'
 import { Course } from './course.entity'
-import { SearchDto } from './dtos'
+import { CourseDto, SearchDto } from './dtos'
 
 @Injectable()
 export class CoursesService {
 	constructor(
 		@InjectRepository(Course)
-		private readonly courseRepository: Repository<Course>
+		private readonly courseRepository: Repository<Course>,
+		@InjectRepository(Like)
+		private readonly likeRepository: Repository<Like>,
+		@InjectRepository(Favorite)
+		private readonly favoriteRepository: Repository<Favorite>
 	) {}
 
-	async findByIdWithEpisodes(id: number): Promise<Course> {
+	async findByIdWithEpisodes(
+		userId: number,
+		courseId: number
+	): Promise<CourseDto> {
 		const course = await this.courseRepository.findOne({
-			where: { id },
+			where: { id: courseId },
 			relations: {
 				episodes: true
 			},
@@ -30,7 +39,16 @@ export class CoursesService {
 			throw new NotFoundException('course not found')
 		}
 
-		return course
+		const [isLiked, isFavorite] = await Promise.all([
+			this.isLiked(userId, courseId),
+			this.isFavorite(userId, courseId)
+		])
+
+		return {
+			...course,
+			isLiked,
+			isFavorite
+		}
 	}
 
 	async getRandomFeaturedCourses(): Promise<Course[]> {
@@ -89,5 +107,21 @@ export class CoursesService {
 		const course = await this.courseRepository.findOne({ where: { id } })
 
 		return course
+	}
+
+	private async isLiked(userId: number, courseId: number): Promise<boolean> {
+		const result = await this.likeRepository.findOne({
+			where: { userId, courseId }
+		})
+
+		return result !== null
+	}
+
+	private async isFavorite(userId: number, courseId: number): Promise<boolean> {
+		const result = await this.favoriteRepository.findOne({
+			where: { userId, courseId }
+		})
+
+		return result !== null
 	}
 }

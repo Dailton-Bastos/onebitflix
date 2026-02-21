@@ -22,7 +22,9 @@ export const CoursesServiceMock: Provider<MockType<CoursesService>> = {
 	useValue: {
 		findByIdWithEpisodes: jest.fn().mockResolvedValue({
 			...courseMock,
-			episodes: [episodeMock]
+			episodes: [episodeMock],
+			isLiked: false,
+			isFavorite: false
 		}),
 		getRandomFeaturedCourses: jest.fn().mockResolvedValue([
 			{

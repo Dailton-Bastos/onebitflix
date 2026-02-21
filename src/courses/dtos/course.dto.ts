@@ -20,6 +20,12 @@ export class CourseDto {
 	@Exclude({ toPlainOnly: true })
 	categoryId: number
 
+	@Expose()
+	isLiked: boolean
+
+	@Expose()
+	isFavorite: boolean
+
 	@Exclude()
 	createdAt: Date
 

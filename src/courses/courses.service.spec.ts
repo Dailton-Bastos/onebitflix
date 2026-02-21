@@ -3,6 +3,11 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Order } from 'src/common/constants'
 import { episodeMock } from 'src/episodes/episodes.service.mock'
+import { Favorite } from 'src/favorites/favorite.entity'
+import { FavoritesRepositoryMock } from 'src/favorites/favorites.service.mock'
+import { Like } from 'src/likes/like.entity'
+import { LikesRepositoryMock } from 'src/likes/likes.service.mock'
+import { userMock } from 'src/users/users.service.mock'
 import { ILike, Repository } from 'typeorm'
 import { Course } from './course.entity'
 import { CoursesService } from './courses.service'
@@ -12,37 +17,67 @@ import { SearchDto } from './dtos'
 describe('CoursesService', () => {
 	let service: CoursesService
 	let repository: Repository<Course>
+	let likeRepository: Repository<Like>
+	let favoriteRepository: Repository<Favorite>
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [CoursesService, CourseRepositoryMock]
+			providers: [
+				CoursesService,
+				CourseRepositoryMock,
+				LikesRepositoryMock,
+				FavoritesRepositoryMock
+			]
 		}).compile()
 
 		service = module.get<CoursesService>(CoursesService)
 		repository = module.get<Repository<Course>>(getRepositoryToken(Course))
-
+		likeRepository = module.get<Repository<Like>>(getRepositoryToken(Like))
+		favoriteRepository = module.get<Repository<Favorite>>(
+			getRepositoryToken(Favorite)
+		)
 		jest.restoreAllMocks()
 	})
 
 	it('should be defined', () => {
 		expect(service).toBeDefined()
 		expect(repository).toBeDefined()
+		expect(likeRepository).toBeDefined()
+		expect(favoriteRepository).toBeDefined()
 	})
 
 	describe('findByIdWithEpisodes', () => {
 		it('should find a course with findOne repository method', async () => {
-			const id = 1
+			const result = await service.findByIdWithEpisodes(
+				userMock.id,
+				courseMock.id
+			)
 
-			await service.findByIdWithEpisodes(id)
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id: courseMock.id },
+				relations: {
+					episodes: true
+				},
+				order: { episodes: { order: Order.ASC } }
+			})
+
+			expect(result).toBeDefined()
+			expect(result.id).toBe(courseMock.id)
+			expect(result.name).toBe(courseMock.name)
+			expect(result.synopsis).toBe(courseMock.synopsis)
+			expect(result.featured).toBe(courseMock.featured)
+			expect(result.thumbnailUrl).toBe(courseMock.thumbnailUrl)
+			expect(result.episodes).toEqual([episodeMock])
 		})
 
 		it('should return a course with episodes', async () => {
-			const id = 1
-
-			const result = await service.findByIdWithEpisodes(id)
+			const result = await service.findByIdWithEpisodes(
+				userMock.id,
+				courseMock.id
+			)
 
 			expect(result).toBeDefined()
-			expect(result.id).toBe(id)
+			expect(result.id).toBe(courseMock.id)
 			expect(result.name).toBe(courseMock.name)
 			expect(result.synopsis).toBe(courseMock.synopsis)
 			expect(result.featured).toBe(courseMock.featured)
@@ -51,31 +86,30 @@ describe('CoursesService', () => {
 		})
 
 		it('should return a course with empty episodes array', async () => {
-			const id = 1
-
 			jest.spyOn(repository, 'findOne').mockResolvedValue({
 				...(courseMock as Course),
 				episodes: []
 			} as unknown as Course)
 
-			const result = await service.findByIdWithEpisodes(id)
+			const result = await service.findByIdWithEpisodes(
+				userMock.id,
+				courseMock.id
+			)
 
 			expect(result).toBeDefined()
-			expect(result.id).toBe(id)
+			expect(result.id).toBe(courseMock.id)
 			expect(result.episodes).toBeDefined()
 			expect(result.episodes).toEqual([])
 		})
 
 		it('should return a course with episodes ordered by order property', async () => {
-			const id = 1
-
 			jest.spyOn(repository, 'findOne').mockResolvedValue({
 				...courseMock,
 				episodes: [episodeMock]
 			} as unknown as Course)
 
 			expect(repository.findOne).toHaveBeenCalledWith({
-				where: { id },
+				where: { id: courseMock.id },
 				relations: {
 					episodes: true
 				},
@@ -84,13 +118,85 @@ describe('CoursesService', () => {
 		})
 
 		it('should throw an error if the course is not found', async () => {
-			const id = 999
-
 			jest.spyOn(repository, 'findOne').mockResolvedValue(null)
 
-			await expect(service.findByIdWithEpisodes(id)).rejects.toThrow(
-				NotFoundException
+			await expect(
+				service.findByIdWithEpisodes(userMock.id, courseMock.id)
+			).rejects.toThrow(NotFoundException)
+		})
+
+		it('should return a course with isLiked property', async () => {
+			jest.spyOn(repository, 'findOne').mockResolvedValue({
+				...courseMock,
+				episodes: [episodeMock]
+			} as unknown as Course)
+
+			jest.spyOn(likeRepository, 'findOne').mockResolvedValue({
+				userId: userMock.id,
+				courseId: courseMock.id
+			} as unknown as Like)
+
+			const result = await service.findByIdWithEpisodes(
+				userMock.id,
+				courseMock.id
 			)
+
+			expect(likeRepository.findOne).toHaveBeenCalledWith({
+				where: { userId: userMock.id, courseId: courseMock.id }
+			})
+
+			expect(result).toBeDefined()
+			expect(result.isLiked).toBe(true)
+		})
+
+		it('should return a course with isFavorite property', async () => {
+			jest.spyOn(repository, 'findOne').mockResolvedValue({
+				...courseMock,
+				episodes: [episodeMock]
+			} as unknown as Course)
+
+			jest.spyOn(favoriteRepository, 'findOne').mockResolvedValue({
+				userId: userMock.id,
+				courseId: courseMock.id
+			} as unknown as Favorite)
+
+			const result = await service.findByIdWithEpisodes(
+				userMock.id,
+				courseMock.id
+			)
+
+			expect(favoriteRepository.findOne).toHaveBeenCalledWith({
+				where: { userId: userMock.id, courseId: courseMock.id }
+			})
+
+			expect(result).toBeDefined()
+			expect(result.isFavorite).toBe(true)
+		})
+
+		it('should return a course with isLiked and isFavorite properties and false values', async () => {
+			jest.spyOn(repository, 'findOne').mockResolvedValue({
+				...courseMock,
+				episodes: [episodeMock]
+			} as unknown as Course)
+
+			jest.spyOn(likeRepository, 'findOne').mockResolvedValue(null)
+			jest.spyOn(favoriteRepository, 'findOne').mockResolvedValue(null)
+
+			const result = await service.findByIdWithEpisodes(
+				userMock.id,
+				courseMock.id
+			)
+
+			expect(likeRepository.findOne).toHaveBeenCalledWith({
+				where: { userId: userMock.id, courseId: courseMock.id }
+			})
+			expect(favoriteRepository.findOne).toHaveBeenCalledWith({
+				where: { userId: userMock.id, courseId: courseMock.id }
+			})
+
+			expect(result).toBeDefined()
+			expect(result.isLiked).toBe(false)
+			expect(result.isFavorite).toBe(false)
 		})
 	})
 

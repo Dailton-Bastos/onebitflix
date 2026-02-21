@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { Order } from 'src/common/constants'
 import { episodeMock } from 'src/episodes/episodes.service.mock'
+import { userMock } from 'src/users/users.service.mock'
 import { CoursesController } from './courses.controller'
 import { CoursesService } from './courses.service'
 import { CoursesServiceMock, courseMock } from './courses.service.mock'
@@ -27,9 +28,15 @@ describe('CoursesController', () => {
 
 	describe('findByIdWithEpisodes', () => {
 		it('should return a course with episodes', async () => {
-			const result = await controller.findByIdWithEpisodes(courseMock.id)
+			const result = await controller.findByIdWithEpisodes(
+				{ id: courseMock.id },
+				userMock
+			)
 
-			expect(service.findByIdWithEpisodes).toHaveBeenCalledWith(courseMock.id)
+			expect(service.findByIdWithEpisodes).toHaveBeenCalledWith(
+				userMock.id,
+				courseMock.id
+			)
 
 			expect(result).toBeDefined()
 			expect(result.id).toBe(courseMock.id)
@@ -41,12 +48,26 @@ describe('CoursesController', () => {
 		})
 
 		it('should return a existing course without createdAt and updatedAt properties', async () => {
-			const result = await controller.findByIdWithEpisodes(courseMock.id)
+			const result = await controller.findByIdWithEpisodes(
+				{ id: courseMock.id },
+				userMock
+			)
 
 			expect(result).toBeDefined()
 
 			expect(result.createdAt).toBeUndefined()
 			expect(result.updatedAt).toBeUndefined()
+		})
+
+		it('should return a course with isLiked and isFavorite properties', async () => {
+			const result = await controller.findByIdWithEpisodes(
+				{ id: courseMock.id },
+				userMock
+			)
+
+			expect(result).toBeDefined()
+			expect(result.isLiked).toBe(false)
+			expect(result.isFavorite).toBe(false)
 		})
 	})
 
