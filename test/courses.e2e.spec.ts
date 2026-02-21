@@ -4,6 +4,7 @@ import { Category } from 'src/categories/category.entity'
 import { Order } from 'src/common/constants'
 import { Course } from 'src/courses/course.entity'
 import { SearchDto } from 'src/courses/dtos'
+import { CreateLikeDto } from 'src/likes/dtos/create-like.dto'
 import { CreateUserDto } from 'src/users/dtos/create-user.dto'
 import request from 'supertest'
 import {
@@ -238,6 +239,34 @@ describe('Courses (e2e)', () => {
 
 			expect(response.body).toBeDefined()
 			expect(response.body.length).toBe(10)
+		})
+	})
+
+	describe('GET /api/courses/popular', () => {
+		it('should return top ten most liked courses', async () => {
+			const createLikeDto = plainToInstance(CreateLikeDto, {
+				courseId: course.id
+			})
+
+			await request(app.getHttpServer())
+				.post('/api/likes')
+				.send(createLikeDto)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.CREATED)
+
+			const response = await request(app.getHttpServer())
+				.get('/api/courses/popular')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.OK)
+
+			expect(response.body).toBeDefined()
+			expect(response.body.length).toBe(1)
+			expect(response.body[0].id).toBe(course.id)
+			expect(response.body[0].name).toBe(course.name)
+			expect(response.body[0].synopsis).toBe(course.synopsis)
+			expect(response.body[0].thumbnailUrl).toBe(course.thumbnailUrl)
+			expect(response.body[0].likes).toEqual('1')
+			expect(response.body).toBeInstanceOf(Array<Course>)
 		})
 	})
 })
