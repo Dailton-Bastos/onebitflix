@@ -1,4 +1,5 @@
 import { RefreshToken } from 'src/auth/refresh-token.entity'
+import { WatchTime } from 'src/episodes/watch-time.entity'
 import { Favorite } from 'src/favorites/favorite.entity'
 import { Like } from 'src/likes/like.entity'
 import {
@@ -67,4 +68,10 @@ export class User extends BaseEntity {
 		(like) => like.user
 	)
 	likes: Like[]
+
+	@OneToMany(
+		() => WatchTime,
+		(watchTime) => watchTime.user
+	)
+	watchTimes: WatchTime[]
 }
