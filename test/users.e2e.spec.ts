@@ -41,4 +41,16 @@ describe('Users (e2e)', () => {
 			expect(Array.isArray(response.body)).toBe(true)
 		})
 	})
+
+	describe('GET /api/users/current', () => {
+		it('should return the current user', async () => {
+			const response = await request(app.getHttpServer())
+				.get('/api/users/current')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(HttpStatus.OK)
+
+			expect(response.body).toBeDefined()
+			expect(response.body.email).toBe('test@test.com')
+		})
+	})
 })

@@ -3,7 +3,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { CurrentUser } from 'src/common/decorators'
 import { Serialize } from 'src/common/interceptors'
 import { Episode } from 'src/episodes/episode.entity'
-import { WatchingListResponseDto } from './dtos'
+import { UserDto, WatchingListResponseDto } from './dtos'
 import { User } from './user.entity'
 import { UsersService } from './users.service'
 
@@ -16,5 +16,12 @@ export class UsersController {
 	@Serialize(WatchingListResponseDto)
 	async getKeepWatchingList(@CurrentUser() user: User): Promise<Episode[]> {
 		return this.usersService.getKeepWatchingList(user.id)
+	}
+
+	@Get('/current')
+	@UseGuards(JwtAuthGuard)
+	@Serialize(UserDto)
+	async getCurrentUser(@CurrentUser() user: User): Promise<User> {
+		return user
 	}
 }
