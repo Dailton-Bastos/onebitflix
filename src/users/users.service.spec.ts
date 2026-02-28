@@ -171,4 +171,53 @@ describe('UsersService', () => {
 			expect(result[0]).toEqual(watchTimesMock[0].episode)
 		})
 	})
+
+	describe('update', () => {
+		it('should throw an error if the user is not found', async () => {
+			jest.spyOn(repository, 'findOne').mockResolvedValue(null)
+
+			await expect(service.update(1, { firstName: 'Updated' })).rejects.toThrow(
+				NotFoundException
+			)
+
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id: 1 }
+			})
+		})
+
+		it('should throw an error if the new email already exists', async () => {
+			const existingUser = { ...userMock, id: 2 } as User
+
+			jest.spyOn(repository, 'findOne').mockResolvedValue(userMock)
+			jest.spyOn(service, 'findByEmail').mockResolvedValue(existingUser)
+
+			await expect(
+				service.update(1, { email: existingUser.email })
+			).rejects.toThrow(ConflictException)
+
+			expect(service.findByEmail).toHaveBeenCalledWith(existingUser.email)
+		})
+
+		it('should update the user correctly', async () => {
+			const updatedUser = { ...userMock, firstName: 'Updated' } as User
+
+			jest.spyOn(repository, 'findOne').mockResolvedValue(userMock)
+			jest.spyOn(repository, 'create').mockReturnValue(updatedUser)
+			jest.spyOn(repository, 'save').mockResolvedValue(updatedUser)
+
+			const result = await service.update(userMock.id, {
+				firstName: 'Updated'
+			})
+
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id: userMock.id }
+			})
+			expect(repository.create).toHaveBeenCalledWith({
+				...userMock,
+				firstName: 'Updated'
+			})
+			expect(repository.save).toHaveBeenCalledWith(updatedUser)
+			expect(result).toEqual(updatedUser)
+		})
+	})
 })

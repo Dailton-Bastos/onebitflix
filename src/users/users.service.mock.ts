@@ -42,7 +42,8 @@ export const UsersServiceMock: Provider<MockType<UsersService>> = {
 	useValue: {
 		findByEmail: jest.fn().mockResolvedValue(userMock),
 		create: jest.fn().mockResolvedValue(userMock),
-		getKeepWatchingList: jest.fn().mockResolvedValue([] as Episode[])
+		getKeepWatchingList: jest.fn().mockResolvedValue([] as Episode[]),
+		update: jest.fn().mockResolvedValue(userMock)
 	}
 }
 

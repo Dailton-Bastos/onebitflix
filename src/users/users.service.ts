@@ -10,6 +10,7 @@ import { HashingService } from 'src/common/hashing/hashing.service'
 import { Episode } from 'src/episodes/episode.entity'
 import { Repository } from 'typeorm'
 import { CreateUserDto } from './dtos'
+import { UpdateUserDto } from './dtos/update-user.dto'
 import { User } from './user.entity'
 
 @Injectable()
@@ -46,6 +47,31 @@ export class UsersService {
 		})
 
 		return this.userRepository.save(user)
+	}
+
+	async update(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
+		const existingUser = await this.userRepository.findOne({
+			where: { id: userId }
+		})
+
+		if (!existingUser) {
+			throw new NotFoundException('user not found')
+		}
+
+		if (updateUserDto.email) {
+			const userWithSameEmail = await this.findByEmail(updateUserDto.email)
+
+			if (userWithSameEmail && userWithSameEmail.id !== userId) {
+				throw new ConflictException('email already exists')
+			}
+		}
+
+		const updatedUser = this.userRepository.create({
+			...existingUser,
+			...updateUserDto
+		})
+
+		return this.userRepository.save(updatedUser)
 	}
 
 	async getKeepWatchingList(userId: number): Promise<Episode[]> {
