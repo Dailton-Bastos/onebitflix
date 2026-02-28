@@ -17,6 +17,7 @@ import { EpisodesModule } from 'src/episodes/episodes.module'
 import { FavoritesModule } from 'src/favorites/favorites.module'
 import { HealthModule } from 'src/health/health.module'
 import { LikesModule } from 'src/likes/likes.module'
+import { UsersModule } from 'src/users/users.module'
 import type { App } from 'supertest/types'
 import { Repository } from 'typeorm'
 
@@ -41,7 +42,8 @@ global.beforeEach(async () => {
 			EpisodesModule,
 			AuthModule,
 			FavoritesModule,
-			LikesModule
+			LikesModule,
+			UsersModule
 		]
 	}).compile()
 
