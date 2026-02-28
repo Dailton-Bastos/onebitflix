@@ -1,9 +1,14 @@
-import { BadRequestException, ConflictException } from '@nestjs/common'
+import {
+	BadRequestException,
+	ConflictException,
+	NotFoundException
+} from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { plainToInstance } from 'class-transformer'
 import { UserRole } from 'src/common/constants'
 import { HashingService } from 'src/common/hashing/hashing.service'
+import { Episode } from 'src/episodes/episode.entity'
 import { Repository } from 'typeorm'
 import { CreateUserDto } from './dtos/create-user.dto'
 import { User } from './user.entity'
@@ -11,7 +16,8 @@ import { UsersService } from './users.service'
 import {
 	HashingServiceMock,
 	UserRepositoryMock,
-	userMock
+	userMock,
+	watchTimesMock
 } from './users.service.mock'
 
 describe('UsersService', () => {
@@ -117,6 +123,52 @@ describe('UsersService', () => {
 			expect(hashingService.hash).toHaveBeenCalledWith(dto.password)
 			expect(result.password).not.toEqual(dto.password)
 			expect(result.password).toEqual(userMock.password)
+		})
+	})
+
+	describe('getKeepWatchingList', () => {
+		it('should throw an error if the user is not found', async () => {
+			jest.spyOn(repository, 'findOne').mockResolvedValue(null)
+
+			await expect(service.getKeepWatchingList(1)).rejects.toThrow(
+				NotFoundException
+			)
+
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id: 1 },
+				relations: {
+					watchTimes: {
+						episode: {
+							course: true,
+							watchTimes: true
+						}
+					}
+				}
+			})
+		})
+
+		it('should return the keep watching list correctly', async () => {
+			jest.spyOn(repository, 'findOne').mockResolvedValue({
+				...userMock,
+				watchTimes: watchTimesMock
+			} as User)
+
+			const result = await service.getKeepWatchingList(userMock.id)
+
+			expect(repository.findOne).toHaveBeenCalledWith({
+				where: { id: userMock.id },
+				relations: {
+					watchTimes: {
+						episode: {
+							course: true,
+							watchTimes: true
+						}
+					}
+				}
+			})
+
+			expect(result).toBeInstanceOf(Array<Episode>)
+			expect(result[0]).toEqual(watchTimesMock[0].episode)
 		})
 	})
 })

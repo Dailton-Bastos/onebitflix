@@ -5,6 +5,7 @@ import {
 	HashingService
 } from 'src/common/hashing/hashing.service'
 import { User } from './user.entity'
+import { UsersController } from './users.controller'
 import { UsersService } from './users.service'
 
 @Module({
@@ -15,6 +16,7 @@ import { UsersService } from './users.service'
 			provide: HashingService,
 			useClass: Argon2HashingService
 		}
-	]
+	],
+	controllers: [UsersController]
 })
 export class UsersModule {}
