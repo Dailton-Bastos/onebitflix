@@ -53,4 +53,51 @@ describe('Users (e2e)', () => {
 			expect(response.body.email).toBe('test@test.com')
 		})
 	})
+
+	describe('PATCH /api/users/current', () => {
+		it('should update and return the current user', async () => {
+			const response = await request(app.getHttpServer())
+				.patch('/api/users/current')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({ firstName: 'Updated' })
+				.expect(HttpStatus.OK)
+
+			expect(response.body).toBeDefined()
+			expect(response.body.firstName).toBe('Updated')
+		})
+
+		it('should return 404 if user not found', async () => {
+			// Simulate user not found by using an invalid access token
+			const invalidAccessToken = 'invalid	token'
+
+			await request(app.getHttpServer())
+				.patch('/api/users/current')
+				.set('Authorization', `Bearer ${invalidAccessToken}`)
+				.send({ firstName: 'Updated' })
+				.expect(HttpStatus.UNAUTHORIZED)
+		})
+
+		it('should return 409 if email already exists', async () => {
+			// Create another user to cause email conflict
+			const createUserDto = plainToInstance(CreateUserDto, {
+				firstName: 'Another',
+				lastName: 'User',
+				phone: '123456789012345',
+				birth: '1990-01-01',
+				email: 'another@test.com',
+				password: '1234567890'
+			})
+
+			await request(app.getHttpServer())
+				.post('/api/auth/register')
+				.send(createUserDto)
+				.expect(HttpStatus.CREATED)
+
+			await request(app.getHttpServer())
+				.patch('/api/users/current')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({ email: createUserDto.email })
+				.expect(HttpStatus.CONFLICT)
+		})
+	})
 })
