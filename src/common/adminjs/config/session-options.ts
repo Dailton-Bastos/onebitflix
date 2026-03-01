@@ -27,7 +27,7 @@ export const sessionOptions: SessionOptions = {
 	secret: configService.getOrThrow<string>('ADMINJS_SESSION_SECRET'),
 	cookie: {
 		maxAge: 1000 * 60 * 60 * 24, // 1 day
-		httpOnly: isProduction,
+		httpOnly: true,
 		secure: isProduction,
 		sameSite: 'strict'
 	},
