@@ -7,10 +7,12 @@ import {
 	Index,
 	JoinColumn,
 	ManyToOne,
+	OneToMany,
 	PrimaryGeneratedColumn,
 	RelationId,
 	UpdateDateColumn
 } from 'typeorm'
+import { WatchTime } from './watch-time.entity'
 
 @Entity({ name: 'episodes' })
 export class Episode extends BaseEntity {
@@ -50,4 +52,10 @@ export class Episode extends BaseEntity {
 	@RelationId((episode: Episode) => episode.course)
 	@Column({ name: 'course_id' })
 	courseId: number
+
+	@OneToMany(
+		() => WatchTime,
+		(watchTime) => watchTime.episode
+	)
+	watchTimes: WatchTime[]
 }

@@ -1,2 +1,2 @@
 #!/bin/bash
-exec < /dev/tty && npx cz --hook || true
+(exec < /dev/tty 2>/dev/null && npx cz --hook) || true

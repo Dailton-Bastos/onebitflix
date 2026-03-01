@@ -91,6 +91,34 @@ class EnvironmentVariables {
 	@IsString()
 	@IsNotEmpty()
 	ADMIN_JS_TMP_DIR: string
+
+	@IsString()
+	@IsNotEmpty()
+	JWT_ISSUER: string
+
+	@IsString()
+	@IsNotEmpty()
+	JWT_AUDIENCE: string
+
+	@IsString()
+	@IsNotEmpty()
+	JWT_SECRET: string
+
+	@IsString()
+	@IsNotEmpty()
+	JWT_REFRESH_SECRET: string
+
+	@IsNumber()
+	@IsNotEmpty()
+	JWT_EXPIRES_IN: number
+
+	@IsNumber()
+	@IsNotEmpty()
+	JWT_REFRESH_EXPIRES_IN: number
+
+	@IsString()
+	@IsNotEmpty()
+	COOKIES_SECRET: string
 }
 
 export const validate = (config: Record<string, unknown>) => {

@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm'
 import type { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions.js'
-import { configService } from './doenv.config'
+import { configService } from './dotenv.config'
 
 export const dataSourceOptions: PostgresConnectionOptions = {
 	type: 'postgres',

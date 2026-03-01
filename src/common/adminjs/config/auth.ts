@@ -1,4 +1,4 @@
-import { configService } from 'src/config/doenv.config'
+import { configService } from 'src/config/dotenv.config'
 import { authProvider } from './auth-provider'
 
 export const auth = {

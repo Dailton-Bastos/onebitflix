@@ -1,9 +1,14 @@
+import { RefreshToken } from 'src/auth/refresh-token.entity'
+import { WatchTime } from 'src/episodes/watch-time.entity'
+import { Favorite } from 'src/favorites/favorite.entity'
+import { Like } from 'src/likes/like.entity'
 import {
 	BaseEntity,
 	Column,
 	CreateDateColumn,
 	Entity,
 	Index,
+	OneToMany,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm'
@@ -45,4 +50,28 @@ export class User extends BaseEntity {
 
 	@UpdateDateColumn({ name: 'updated_at' })
 	updatedAt: Date
+
+	@OneToMany(
+		() => RefreshToken,
+		(refreshToken) => refreshToken.user
+	)
+	refreshTokens: RefreshToken[]
+
+	@OneToMany(
+		() => Favorite,
+		(favorite) => favorite.user
+	)
+	favorites: Favorite[]
+
+	@OneToMany(
+		() => Like,
+		(like) => like.user
+	)
+	likes: Like[]
+
+	@OneToMany(
+		() => WatchTime,
+		(watchTime) => watchTime.user
+	)
+	watchTimes: WatchTime[]
 }
