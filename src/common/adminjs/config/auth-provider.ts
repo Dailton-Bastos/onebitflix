@@ -34,10 +34,8 @@ const authenticate = async ({
 		}
 
 		return null
-	} catch (err) {
-		throw new Error(
-			`authentication error: ${err instanceof Error ? err.message : String(err)}`
-		)
+	} catch {
+		return null
 	}
 }
 
