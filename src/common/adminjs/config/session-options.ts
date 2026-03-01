@@ -15,7 +15,7 @@ const sessionStore = new ConnectSession({
 		database: dataSourceOptions.database
 	},
 	tableName: 'adminjs_sessions',
-	createTableIfMissing: true
+	createTableIfMissing: false
 })
 
 const isProduction =
