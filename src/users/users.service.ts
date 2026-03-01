@@ -11,6 +11,7 @@ import { Episode } from 'src/episodes/episode.entity'
 import { Repository } from 'typeorm'
 import { CreateUserDto } from './dtos'
 import { UpdateUserDto } from './dtos/update-user.dto'
+import { UpdateUserPasswordDto } from './dtos/update-user-password.dto'
 import { User } from './user.entity'
 
 @Injectable()
@@ -72,6 +73,44 @@ export class UsersService {
 		})
 
 		return this.userRepository.save(updatedUser)
+	}
+
+	async updatePassword(
+		userId: number,
+		updateUserPasswordDto: UpdateUserPasswordDto
+	): Promise<void> {
+		const existingUser = await this.userRepository.findOne({
+			where: { id: userId }
+		})
+
+		if (!existingUser) {
+			throw new NotFoundException('user not found')
+		}
+
+		try {
+			const isCurrentPasswordValid = await this.hashingService.verify(
+				updateUserPasswordDto.currentPassword,
+				existingUser.password
+			)
+
+			if (!isCurrentPasswordValid) {
+				throw new BadRequestException('current password is incorrect')
+			}
+
+			const hashedNewPassword = await this.hashingService.hash(
+				updateUserPasswordDto.newPassword
+			)
+
+			existingUser.password = hashedNewPassword
+
+			await this.userRepository.save(existingUser)
+		} catch (error) {
+			if (error instanceof BadRequestException) {
+				throw error
+			}
+
+			throw new BadRequestException('failed to update password')
+		}
 	}
 
 	async getKeepWatchingList(userId: number): Promise<Episode[]> {

@@ -100,4 +100,42 @@ describe('Users (e2e)', () => {
 				.expect(HttpStatus.CONFLICT)
 		})
 	})
+
+	describe('PATCH /api/users/current/password', () => {
+		it('should update the current user password', async () => {
+			await request(app.getHttpServer())
+				.patch('/api/users/current/password')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({ newPassword: 'newpassword123', currentPassword: '1234567890' })
+				.expect(HttpStatus.NO_CONTENT)
+
+			// Try to login with the new password
+			await request(app.getHttpServer())
+				.post('/api/auth/login')
+				.send({ email: 'test@test.com', password: 'newpassword123' })
+				.expect(HttpStatus.OK)
+		})
+
+		it('should return 400 if current password is incorrect', async () => {
+			await request(app.getHttpServer())
+				.patch('/api/users/current/password')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({
+					newPassword: 'newpassword123',
+					currentPassword: 'wrongpassword'
+				})
+				.expect(HttpStatus.BAD_REQUEST)
+		})
+
+		it('should return 404 if user not found', async () => {
+			// Simulate user not found by using an invalid access token
+			const invalidAccessToken = 'invalid	token'
+
+			await request(app.getHttpServer())
+				.patch('/api/users/current/password')
+				.set('Authorization', `Bearer ${invalidAccessToken}`)
+				.send({ newPassword: 'newpassword123', currentPassword: '1234567890' })
+				.expect(HttpStatus.UNAUTHORIZED)
+		})
+	})
 })
