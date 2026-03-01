@@ -32,5 +32,6 @@ export const sessionOptions: SessionOptions = {
 		sameSite: 'strict'
 	},
 	name: 'adminjs-session',
-	store: sessionStore
+	store: sessionStore,
+	proxy: isProduction
 }
