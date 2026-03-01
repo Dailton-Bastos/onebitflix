@@ -32,14 +32,17 @@ export class CreateAdminjsSessionsTable1772374525577
 		await queryRunner.createIndex(
 			'adminjs_sessions',
 			new TableIndex({
-				name: 'IDX_session_expire',
+				name: 'IDX_ADMINJS_SESSIONS_EXPIRE',
 				columnNames: ['expire']
 			})
 		)
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
-		await queryRunner.dropIndex('adminjs_sessions', 'IDX_session_expire')
+		await queryRunner.dropIndex(
+			'adminjs_sessions',
+			'IDX_ADMINJS_SESSIONS_EXPIRE'
+		)
 		await queryRunner.dropTable('adminjs_sessions', true)
 	}
 }
