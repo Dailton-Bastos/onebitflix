@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm'
+import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm'
 
 export class CreateAdminjsSessionsTable1772374525577
 	implements MigrationInterface
@@ -29,13 +29,17 @@ export class CreateAdminjsSessionsTable1772374525577
 			true
 		)
 
-		await queryRunner.query(
-			`CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "adminjs_sessions" ("expire")`
+		await queryRunner.createIndex(
+			'adminjs_sessions',
+			new TableIndex({
+				name: 'IDX_session_expire',
+				columnNames: ['expire']
+			})
 		)
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
-		await queryRunner.query(`DROP INDEX IF EXISTS "IDX_session_expire"`)
+		await queryRunner.dropIndex('adminjs_sessions', 'IDX_session_expire')
 		await queryRunner.dropTable('adminjs_sessions', true)
 	}
 }
