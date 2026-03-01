@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { UserRole } from 'src/common/constants'
 import { HashingService } from 'src/common/hashing/hashing.service'
 import { Episode } from 'src/episodes/episode.entity'
+import { WatchTime } from 'src/episodes/watch-time.entity'
 import { Repository } from 'typeorm'
 import { CreateUserDto } from './dtos'
 import { UpdateUserDto } from './dtos/update-user.dto'
@@ -128,47 +129,44 @@ export class UsersService {
 
 		if (!user) throw new NotFoundException('user not found')
 
-		const keepWatchingEpisodes = user.watchTimes.map(
-			(watchTime) => watchTime.episode
-		)
+		const lastWatchTimes = this.filterLastWatchTimesByCourse(user.watchTimes)
 
-		const keepWatchingList =
-			this.filterLastEpisodesByCourse(keepWatchingEpisodes)
-
-		return keepWatchingList.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))
+		return lastWatchTimes
+			.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))
+			.map((watchTime) => watchTime.episode)
 	}
 
-	private filterLastEpisodesByCourse(episodes: Episode[]) {
+	private filterLastWatchTimesByCourse(watchTimes: WatchTime[]) {
 		const coursesOnList: number[] = []
 
-		const lastEpisodes = episodes.reduce((currentLit, episode) => {
-			if (!coursesOnList.includes(episode.courseId)) {
-				coursesOnList.push(episode.courseId)
-				currentLit.push(episode)
+		return watchTimes.reduce((currentList, watchTime) => {
+			const courseId = watchTime.episode.courseId
 
-				return currentLit
+			if (!coursesOnList.includes(courseId)) {
+				coursesOnList.push(courseId)
+				currentList.push(watchTime)
+
+				return currentList
 			}
 
-			const episodeFromSameCourse = currentLit.find(
-				(e) => e.courseId === episode.courseId
+			const watchTimeFromSameCourse = currentList.find(
+				(wt) => wt.episode.courseId === courseId
 			)
 
 			if (
-				episodeFromSameCourse?.order &&
-				episodeFromSameCourse.order > episode.order
+				watchTimeFromSameCourse?.updatedAt &&
+				watchTimeFromSameCourse.updatedAt > watchTime.updatedAt
 			) {
-				return currentLit
+				return currentList
 			}
 
-			const listWithoutEpisodeFromSameCourse = currentLit.filter(
-				(e) => e.courseId !== episode.courseId
+			const listWithoutWatchTimeFromSameCourse = currentList.filter(
+				(wt) => wt.episode.courseId !== courseId
 			)
 
-			listWithoutEpisodeFromSameCourse.push(episode)
+			listWithoutWatchTimeFromSameCourse.push(watchTime)
 
-			return listWithoutEpisodeFromSameCourse
-		}, [] as Episode[])
-
-		return lastEpisodes
+			return listWithoutWatchTimeFromSameCourse
+		}, [] as WatchTime[])
 	}
 }

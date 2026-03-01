@@ -6,10 +6,7 @@ import { PaginationOptionsDto } from 'src/common/pagination'
 import { courseMock } from 'src/courses/courses.service.mock'
 import { Repository } from 'typeorm'
 import { CategoriesService } from './categories.service'
-import {
-	CategoryRespositoryMock,
-	categoryMock
-} from './categories.service.mock'
+import { CategoryRepositoryMock, categoryMock } from './categories.service.mock'
 import { Category } from './category.entity'
 
 describe('CategoriesService', () => {
@@ -18,7 +15,7 @@ describe('CategoriesService', () => {
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [CategoriesService, CategoryRespositoryMock]
+			providers: [CategoriesService, CategoryRepositoryMock]
 		}).compile()
 
 		service = module.get<CategoriesService>(CategoriesService)

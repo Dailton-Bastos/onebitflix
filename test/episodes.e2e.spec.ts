@@ -36,7 +36,7 @@ describe('Episodes (e2e)', () => {
 
 		it('should create a video stream', async () => {
 			const streamEpisodeVideoDto: StreamEpisodeVideoDto = {
-				videoUrl: 'videos/course-3/Screen Recording 2026-01-13 at 15.28.49.mp4'
+				videoUrl: 'test-fixtures/test.mp4'
 			}
 
 			const response = await request(app.getHttpServer())
