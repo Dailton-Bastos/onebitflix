@@ -25,6 +25,7 @@ export const userMock = {
 
 export const watchTimesMock = [
 	{
+		updatedAt: new Date('2024-01-01'),
 		episode: {
 			id: 1,
 			name: 'Episode 1',
@@ -32,6 +33,7 @@ export const watchTimesMock = [
 			order: 1,
 			videoUrl: 'http://example.com/video1',
 			secondsLong: 3600,
+			courseId: courseMock.id,
 			course: courseMock
 		}
 	}

@@ -368,7 +368,7 @@ describe('CoursesService', () => {
 				'likes',
 				'likes.course_id = courses.id'
 			)
-			expect(repository.createQueryBuilder().innerJoin).toHaveBeenCalledWith(
+			expect(repository.createQueryBuilder().leftJoin).toHaveBeenCalledWith(
 				'users',
 				'users',
 				'users.id = likes.user_id'

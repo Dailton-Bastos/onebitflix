@@ -66,9 +66,9 @@ describe('Users (e2e)', () => {
 			expect(response.body.firstName).toBe('Updated')
 		})
 
-		it('should return 404 if user not found', async () => {
+		it('should return 401 if the token is invalid', async () => {
 			// Simulate user not found by using an invalid access token
-			const invalidAccessToken = 'invalid	token'
+			const invalidAccessToken = 'invalid-token'
 
 			await request(app.getHttpServer())
 				.patch('/api/users/current')
@@ -127,9 +127,9 @@ describe('Users (e2e)', () => {
 				.expect(HttpStatus.BAD_REQUEST)
 		})
 
-		it('should return 404 if user not found', async () => {
+		it('should return 401 if the token is invalid', async () => {
 			// Simulate user not found by using an invalid access token
-			const invalidAccessToken = 'invalid	token'
+			const invalidAccessToken = 'invalid-token'
 
 			await request(app.getHttpServer())
 				.patch('/api/users/current/password')

@@ -59,10 +59,11 @@ describe('Courses (e2e)', () => {
 
 	describe('GET /api/courses/:id', () => {
 		it('should throw an error if the course is not found', async () => {
+			const deletedCourseId = course.id
 			await courseRepository.delete(course.id)
 
 			const response = await request(app.getHttpServer())
-				.get('/api/courses/1')
+				.get(`/api/courses/${deletedCourseId}`)
 				.set('Authorization', `Bearer ${accessToken}`)
 				.expect(HttpStatus.NOT_FOUND)
 

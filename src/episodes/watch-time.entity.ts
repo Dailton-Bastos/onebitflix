@@ -4,7 +4,6 @@ import {
 	Column,
 	CreateDateColumn,
 	Entity,
-	Index,
 	JoinColumn,
 	ManyToOne,
 	PrimaryColumn,
@@ -16,12 +15,10 @@ import { Episode } from './episode.entity'
 @Entity({ name: 'watch_times' })
 export class WatchTime extends BaseEntity {
 	@PrimaryColumn({ name: 'user_id' })
-	@Index('IDX_WATCH_TIMES_USER_ID', { unique: true })
 	@RelationId((watchTime: WatchTime) => watchTime.user)
 	userId: number
 
 	@PrimaryColumn({ name: 'episode_id' })
-	@Index('IDX_WATCH_TIMES_EPISODE_ID', { unique: true })
 	@RelationId((watchTime: WatchTime) => watchTime.episode)
 	episodeId: number
 

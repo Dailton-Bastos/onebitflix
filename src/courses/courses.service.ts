@@ -134,7 +134,7 @@ export class CoursesService {
 			.addSelect('courses.thumbnailUrl', 'thumbnailUrl')
 			.addSelect('COUNT(user_id)', 'likes')
 			.leftJoin('likes', 'likes', 'likes.course_id = courses.id')
-			.innerJoin('users', 'users', 'users.id = likes.user_id')
+			.leftJoin('users', 'users', 'users.id = likes.user_id')
 			.groupBy('courses.id')
 			.orderBy('likes', 'DESC')
 			.take(10)

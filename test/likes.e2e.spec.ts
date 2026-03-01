@@ -48,8 +48,11 @@ describe('Likes (e2e)', () => {
 
 	describe('POST /api/likes', () => {
 		it('should create a like', async () => {
+			const course = await courseRepository.findOneOrFail({
+				where: { name: 'test course' }
+			})
 			const createLikeDto = plainToInstance(CreateLikeDto, {
-				courseId: 1
+				courseId: course.id
 			})
 
 			const response = await request(app.getHttpServer())
@@ -81,8 +84,11 @@ describe('Likes (e2e)', () => {
 
 	describe('DELETE /api/likes/:courseId', () => {
 		it('should delete a like', async () => {
+			const course = await courseRepository.findOneOrFail({
+				where: { name: 'test course' }
+			})
 			const createLikeDto = plainToInstance(CreateLikeDto, {
-				courseId: 1
+				courseId: course.id
 			})
 
 			await request(app.getHttpServer())
@@ -92,7 +98,7 @@ describe('Likes (e2e)', () => {
 				.expect(HttpStatus.CREATED)
 
 			const response = await request(app.getHttpServer())
-				.delete('/api/likes/1')
+				.delete(`/api/likes/${course.id}`)
 				.set('Authorization', `Bearer ${accessToken}`)
 				.expect(HttpStatus.NO_CONTENT)
 

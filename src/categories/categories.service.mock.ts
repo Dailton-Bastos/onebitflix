@@ -36,7 +36,7 @@ export const CategoriesServiceMock: Provider<MockType<CategoriesService>> = {
 	}
 }
 
-export const CategoryRespositoryMock: Provider<MockType<Repository<Category>>> =
+export const CategoryRepositoryMock: Provider<MockType<Repository<Category>>> =
 	{
 		provide: getRepositoryToken(Category),
 		useValue: {

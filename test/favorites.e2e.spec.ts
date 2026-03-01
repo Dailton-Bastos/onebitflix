@@ -49,8 +49,11 @@ describe('Favorites (e2e)', () => {
 
 	describe('POST /api/favorites', () => {
 		it('should create a favorite', async () => {
+			const course = await courseRepository.findOneOrFail({
+				where: { name: 'test course' }
+			})
 			const createFavoriteDto = plainToInstance(CreateFavoriteDto, {
-				courseId: 1
+				courseId: course.id
 			})
 
 			const response = await request(app.getHttpServer())
@@ -95,8 +98,11 @@ describe('Favorites (e2e)', () => {
 
 	describe('DELETE /api/favorites/:courseId', () => {
 		it('should delete a favorite', async () => {
+			const course = await courseRepository.findOneOrFail({
+				where: { name: 'test course' }
+			})
 			const createFavoriteDto = plainToInstance(CreateFavoriteDto, {
-				courseId: 1
+				courseId: course.id
 			})
 
 			await request(app.getHttpServer())
@@ -106,7 +112,7 @@ describe('Favorites (e2e)', () => {
 				.expect(HttpStatus.CREATED)
 
 			const response = await request(app.getHttpServer())
-				.delete('/api/favorites/1')
+				.delete(`/api/favorites/${course.id}`)
 				.set('Authorization', `Bearer ${accessToken}`)
 				.expect(HttpStatus.NO_CONTENT)
 

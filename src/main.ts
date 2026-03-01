@@ -5,7 +5,7 @@ import { AppModule } from './app.module'
 import { appConfig } from './config/app.config'
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule, { cors: true })
+	const app = await NestFactory.create(AppModule)
 
 	appConfig(app)
 
@@ -13,6 +13,12 @@ async function bootstrap() {
 
 	const PORT = configService.getOrThrow<number>('PORT')
 	const ENV = configService.getOrThrow<string>('NODE_ENV')
+	const corsOrigin = configService.get<string>('CORS_ORIGIN')
+
+	app.enableCors({
+		origin: corsOrigin ? corsOrigin.split(',') : ENV !== 'production',
+		credentials: true
+	})
 
 	await app.listen(PORT, () => {
 		const logger = new Logger('Bootstrap')

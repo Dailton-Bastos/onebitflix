@@ -126,8 +126,4 @@ describe('Categories (e2e)', () => {
 			expect(response.body.updatedAt).toBeUndefined()
 		})
 	})
-
-	afterAll(async () => {
-		await app.close()
-	})
 })
